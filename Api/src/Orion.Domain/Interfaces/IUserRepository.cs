@@ -11,6 +11,10 @@ public interface IUserRepository
 
     Task<User?> GetByEmailAsync(string normalizedEmail, CancellationToken cancellationToken = default);
 
+    Task<User?> GetByUsernameAsync(string normalizedUsername, CancellationToken cancellationToken = default);
+
+    Task<User?> GetByIdentifierAsync(string identifier, CancellationToken cancellationToken = default);
+
     Task<User?> GetByGitHubIdAsync(string gitHubId, CancellationToken cancellationToken = default);
 
     Task<(IReadOnlyList<User> Items, int TotalCount)> GetPagedAsync(
