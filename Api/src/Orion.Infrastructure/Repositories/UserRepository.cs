@@ -21,6 +21,29 @@ public sealed class UserRepository(AppDbContext dbContext) : IUserRepository
         return dbContext.Users.FirstOrDefaultAsync(u => u.Email == email, cancellationToken);
     }
 
+    public Task<User?> GetByUsernameAsync(
+        string normalizedUsername,
+        CancellationToken cancellationToken = default)
+    {
+        var username = User.NormalizeUsername(normalizedUsername);
+        return dbContext.Users.FirstOrDefaultAsync(u => u.Username == username, cancellationToken);
+    }
+
+    public Task<User?> GetByIdentifierAsync(
+        string identifier,
+        CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(identifier))
+        {
+            return Task.FromResult<User?>(null);
+        }
+
+        var normalized = identifier.Trim().ToLowerInvariant();
+        return dbContext.Users.FirstOrDefaultAsync(
+            u => u.Email == normalized || u.Username == normalized,
+            cancellationToken);
+    }
+
     public Task<User?> GetByGitHubIdAsync(
         string gitHubId,
         CancellationToken cancellationToken = default)

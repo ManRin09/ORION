@@ -1,6 +1,10 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using Orion.Api.Middlewares;
 using Orion.Application;
 using Orion.Infrastructure;
+using Orion.Infrastructure.Security;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +16,30 @@ if (int.TryParse(portValue, out var port) && port > 0)
 
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
+
+builder.Services
+    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer();
+
+builder.Services
+    .AddOptions<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme)
+    .Configure<IOptions<JwtSettings>, JwtSigningKeyProvider>((options, jwtOptions, keyProvider) =>
+    {
+        var settings = jwtOptions.Value;
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidIssuer = settings.Issuer,
+            ValidateAudience = true,
+            ValidAudience = settings.Audience,
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = keyProvider.SigningKey,
+            ValidateLifetime = true,
+            ClockSkew = TimeSpan.FromMinutes(1)
+        };
+    });
+
+builder.Services.AddAuthorization();
 
 builder.Services.AddProblemDetails();
 
@@ -49,6 +77,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors("FrontendClient");
+app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 app.MapGet("/health", () => Results.Ok(new { status = "Healthy" }))

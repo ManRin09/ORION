@@ -154,6 +154,17 @@ public sealed class User
     }
 
     /// <summary>
+    /// Replaces the stored password hash for an active adventurer and refreshes the UTC modification timestamp.
+    /// </summary>
+    public void ChangePassword(string newPasswordHash, DateTime? utcNow = null)
+    {
+        EnsureActive();
+
+        PasswordHash = RequireNonEmpty(newPasswordHash, nameof(newPasswordHash));
+        UpdatedAt = EnsureUtc(utcNow ?? DateTime.UtcNow);
+    }
+
+    /// <summary>
     /// Links an external GitHub identifier to an existing active account.
     /// </summary>
     public void LinkGitHub(string gitHubId, string? avatarUrl = null, DateTime? utcNow = null)

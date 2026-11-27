@@ -61,6 +61,15 @@ public sealed class GlobalExceptionMiddleware(
         {
             ValidationException validationException => BuildValidationProblemDetails(context, validationException),
 
+            InvalidCredentialsException invalidCredentials => new ProblemDetails
+            {
+                Status = StatusCodes.Status401Unauthorized,
+                Type = "https://tools.ietf.org/html/rfc9110#section-15.5.2",
+                Title = "Unauthorized",
+                Detail = invalidCredentials.Message,
+                Instance = context.Request.Path
+            },
+
             UserNotFoundException notFound => new ProblemDetails
             {
                 Status = StatusCodes.Status404NotFound,
