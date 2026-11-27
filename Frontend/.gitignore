@@ -46,7 +46,6 @@ __screenshots__/
 !.env.example
 !.env.template
 *.local
-src/environments/environment.development.ts
 src/environments/environment.local.ts
 
 # System files
