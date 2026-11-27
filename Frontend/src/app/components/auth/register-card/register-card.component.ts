@@ -119,10 +119,15 @@ export class RegisterCardComponent {
   }
 
   protected onGithubQuickSpawn(): void {
+    this.errorMessage.set(null);
     this.previewBanner.set(
-      'GitHub Guild Quick Spawn preview active — OAuth backend not connected yet.',
+      'Connecting to GitHub Guild archive... Redirecting to authorize your account.',
     );
     this.githubQuickSpawn.emit();
+
+    if (typeof window !== 'undefined') {
+      window.location.assign(this.authService.getGitHubLoginUrl());
+    }
   }
 
   protected onSubmit(): void {

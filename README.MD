@@ -75,6 +75,8 @@ flowchart TD
 5. **CORS (`FrontendClient`):** Permite `http://localhost:4200`, `https://localhost:4200` y los orígenes definidos en `AllowedOrigins`.
 6. **Rutas expuestas:**
    - `GET /health` — Health check ligero para Render (`200 OK`).
+   - `POST /api/auth/login`, `GET /api/auth/me`, `PUT /api/auth/password`, `DELETE /api/auth/session` — Autenticación local con JWT Bearer.
+   - `GET /api/auth/github/login`, `GET /api/auth/github/callback` — Flujo GitHub OAuth con cookie `HttpOnly` (`SameSite=Lax`, `Secure` en producción) anti-CSRF, resolución de email privado (`/user/emails`), creación/vinculación de usuario y redirección `${FrontendRedirectUrl}?token={jwt}`.
    - `POST /api/users/register` — Registro local de aventurero (`201 Created`).
    - `GET /api/users/{id:guid}` — Consulta por identificador (`200 OK` / `404 Not Found`).
    - `GET /api/users?pageNumber=1&pageSize=10` — Listado paginado (`200 OK`).

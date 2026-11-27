@@ -29,15 +29,15 @@ Este archivo define la ventana de contexto técnica para cualquier agente de IA 
   - Contrato repositorio: `Api/src/Orion.Domain/Interfaces/IUserRepository.cs`
 - **Aplicación (`Orion.Application`):**
   - Registro DI: `Api/src/Orion.Application/DependencyInjection.cs`
-  - Casos de uso: `Api/src/Orion.Application/Services/UserService.cs`
-  - Interfaces: `Api/src/Orion.Application/Interfaces/{IUserService,IPasswordHasher}.cs`
-  - DTOs: `Api/src/Orion.Application/DTOs/Users/{RegisterUserRequest,UpdateUserProfileRequest,UserResponse}.cs`, `Api/src/Orion.Application/DTOs/Common/PagedResponse.cs`
+  - Casos de uso: `Api/src/Orion.Application/Services/{UserService,AuthService,GitHubAuthService}.cs`
+  - Interfaces: `Api/src/Orion.Application/Interfaces/{IUserService,IAuthService,IGitHubAuthService,IGitHubOAuthClient,IPasswordHasher,ITokenService}.cs`
+  - DTOs: `Api/src/Orion.Application/DTOs/Users/{RegisterUserRequest,UpdateUserProfileRequest,UserResponse}.cs`, `Api/src/Orion.Application/DTOs/Auth/{AuthResponse,ChangePasswordRequest,GitHubUserProfile,LoginRequest}.cs`, `Api/src/Orion.Application/DTOs/Common/PagedResponse.cs`
   - Validadores: `Api/src/Orion.Application/Validators/{PasswordRules,ProfileRules,RegisterUserRequestValidator,UpdateUserProfileRequestValidator}.cs`
 - **Infraestructura (`Orion.Infrastructure`):**
   - Registro DI: `Api/src/Orion.Infrastructure/DependencyInjection.cs`
   - DbContext y mapeo: `Api/src/Orion.Infrastructure/Persistence/AppDbContext.cs`, `Api/src/Orion.Infrastructure/Config/UserConfiguration.cs`
   - Migraciones: `Api/src/Orion.Infrastructure/Migrations/`
-  - Repositorio y hash: `Api/src/Orion.Infrastructure/Repositories/UserRepository.cs`, `Api/src/Orion.Infrastructure/Security/BcryptPasswordHasher.cs`
+  - Repositorio y seguridad: `Api/src/Orion.Infrastructure/Repositories/UserRepository.cs`, `Api/src/Orion.Infrastructure/Security/{BcryptPasswordHasher,JwtSettings,JwtSigningKeyProvider,JwtTokenService,GitHubOAuthSettings,GitHubOAuthClient}.cs`
 - **Pruebas (`Orion.UnitTests`):**
   - `Api/tests/Orion.UnitTests/{Security,Services,Validators}/` (xUnit + NSubstitute)
 

@@ -83,10 +83,17 @@ public static class DependencyInjection
                 options.FrontendRedirectUrl = section[nameof(GitHubOAuthSettings.FrontendRedirectUrl)]?.Trim() ?? string.Empty;
             });
 
+        services.AddHttpClient(GitHubOAuthClient.HttpClientName, client =>
+        {
+            client.Timeout = TimeSpan.FromSeconds(15);
+            client.DefaultRequestHeaders.UserAgent.ParseAdd(GitHubOAuthClient.UserAgentValue);
+        });
+
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddSingleton<IPasswordHasher, BcryptPasswordHasher>();
         services.AddSingleton<JwtSigningKeyProvider>();
         services.AddSingleton<ITokenService, JwtTokenService>();
+        services.AddScoped<IGitHubOAuthClient, GitHubOAuthClient>();
 
         return services;
     }
