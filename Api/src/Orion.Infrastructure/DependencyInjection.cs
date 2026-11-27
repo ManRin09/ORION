@@ -37,8 +37,42 @@ public static class DependencyInjection
                         errorCodesToAdd: null);
                 }));
 
+        services.AddOptions<JwtSettings>()
+            .Configure(options =>
+            {
+                var section = configuration.GetSection(JwtSettings.SectionName);
+
+                var issuer = section[nameof(JwtSettings.Issuer)];
+                if (!string.IsNullOrWhiteSpace(issuer))
+                {
+                    options.Issuer = issuer.Trim();
+                }
+
+                var audience = section[nameof(JwtSettings.Audience)];
+                if (!string.IsNullOrWhiteSpace(audience))
+                {
+                    options.Audience = audience.Trim();
+                }
+
+                options.Key = section[nameof(JwtSettings.Key)];
+
+                if (int.TryParse(section[nameof(JwtSettings.AccessTokenExpirationMinutes)], out var accessMinutes) &&
+                    accessMinutes > 0)
+                {
+                    options.AccessTokenExpirationMinutes = accessMinutes;
+                }
+
+                if (int.TryParse(section[nameof(JwtSettings.RememberMeExpirationDays)], out var rememberDays) &&
+                    rememberDays > 0)
+                {
+                    options.RememberMeExpirationDays = rememberDays;
+                }
+            });
+
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddSingleton<IPasswordHasher, BcryptPasswordHasher>();
+        services.AddSingleton<JwtSigningKeyProvider>();
+        services.AddSingleton<ITokenService, JwtTokenService>();
 
         return services;
     }

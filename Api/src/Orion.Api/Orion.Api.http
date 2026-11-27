@@ -50,3 +50,33 @@ Content-Type: application/json
 
 ### 6. Soft-delete adventurer (expects 204 No Content)
 DELETE {{Orion.Api_HostAddress}}/api/users/{{UserId}}
+
+### 7. Login with email or username (expects 200 OK with JWT AccessToken)
+POST {{Orion.Api_HostAddress}}/api/auth/login
+Content-Type: application/json
+
+{
+  "identifier": "arthur.pendragon@orion.realm",
+  "password": "Orion!Spell2026",
+  "rememberTerminal": true
+}
+
+### 8. Get current authenticated adventurer (expects 200 OK)
+GET {{Orion.Api_HostAddress}}/api/auth/me
+Authorization: Bearer {{AccessToken}}
+Accept: application/json
+
+### 9. Change authenticated adventurer password (expects 204 No Content)
+PUT {{Orion.Api_HostAddress}}/api/auth/password
+Authorization: Bearer {{AccessToken}}
+Content-Type: application/json
+
+{
+  "currentPassword": "Orion!Spell2026",
+  "newPassword": "Orion!NewSpell2026",
+  "confirmNewPassword": "Orion!NewSpell2026"
+}
+
+### 10. End current login session / logout (expects 204 No Content)
+DELETE {{Orion.Api_HostAddress}}/api/auth/session
+Authorization: Bearer {{AccessToken}}
