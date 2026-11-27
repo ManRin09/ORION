@@ -1,0 +1,47 @@
+# Git & CI
+**/.git
+**/.gitignore
+**/.gitattributes
+
+# Docker
+Dockerfile*
+.dockerignore
+
+# .NET build outputs & test artifacts
+**/[Bb]in/
+**/[Oo]bj/
+**/[Tt]est[Rr]esult*/
+**/artifacts/
+**/publish/
+**/*.log
+**/*.binlog
+**/coverage*.json
+**/coverage*.xml
+**/coverage*.info
+
+# Local secrets & environment-specific configuration
+.env
+**/.env
+**/.env.*
+**/*.env
+**/appsettings.Development.json
+**/appsettings.Local.json
+**/appsettings.Staging.json
+**/appsettings.Production.json
+**/appsettings.*.local.json
+**/secrets.json
+**/*.pem
+**/*.key
+**/*.pfx
+
+# IDE & OS metadata
+**/.vs/
+**/.vscode/
+**/.idea/
+**/*.user
+**/*.suo
+**/*.userosscache
+**/*.sln.docstates
+**/*.sln.iml
+.DS_Store
+Thumbs.db
