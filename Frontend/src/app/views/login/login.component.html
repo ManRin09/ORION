@@ -14,6 +14,7 @@
   >
     <div class="w-full max-w-[660px] flex flex-col gap-6">
       <app-login-card
+        [submitting]="isSubmitting()"
         (loginSubmitted)="handleLoginSubmit($event)"
         (validationFailed)="handleValidationFailed()"
         (forgotScrollRequested)="handleForgotScroll()"

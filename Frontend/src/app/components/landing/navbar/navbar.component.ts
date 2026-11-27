@@ -3,6 +3,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink } from '@angular/router';
 import { filter, map, startWith } from 'rxjs';
 import { NAV_LINKS } from '../../../data/quest-landing.data';
+import { AuthService } from '../../../services/auth.service';
 import { PixelIconComponent } from '../../shared/pixel-icon/pixel-icon.component';
 import { RetroButtonComponent } from '../../shared/retro-button/retro-button.component';
 
@@ -15,10 +16,13 @@ import { RetroButtonComponent } from '../../shared/retro-button/retro-button.com
 })
 export class NavbarComponent {
   private readonly router = inject(Router);
+  private readonly authService = inject(AuthService);
 
   protected readonly navLinks = NAV_LINKS;
   protected readonly activeNavId = signal<string>('quest-map');
   protected readonly mobileMenuOpen = signal<boolean>(false);
+  protected readonly isAuthenticated = this.authService.isAuthenticated;
+  protected readonly currentUser = this.authService.currentUser;
 
   private readonly currentUrl = toSignal(
     this.router.events.pipe(
@@ -51,5 +55,12 @@ export class NavbarComponent {
 
   protected toggleMobileMenu(): void {
     this.mobileMenuOpen.update((open) => !open);
+  }
+
+  protected logout(): void {
+    this.mobileMenuOpen.set(false);
+    this.authService.logout().subscribe(() => {
+      void this.router.navigate(['/login']);
+    });
   }
 }

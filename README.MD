@@ -99,8 +99,9 @@ El frontend es una aplicación **Angular 22.3** basada en **Standalone Component
 | Ruta | Vista (Lazy-Loaded) | Propósito |
 | :--- | :--- | :--- |
 | `/` | `HomeComponent` | Landing RPG: barra de navegación, héroe interactivo con arena de batalla, mapa de zonas, inventario del gremio, tabla comparativa y CTA Save-Point. |
-| `/login` | `LoginComponent` | Pantalla `[ SLOT 01: LOAD GAME ]` con formulario reactivo (`LoginCardComponent`) y asistente contextual en tiempo real (`FamiliarGuideCardComponent` / Pyxis). |
+| `/login` | `LoginComponent` | Pantalla `[ SLOT 01: LOAD GAME ]` conectada a `POST /api/auth/login` (JWT) con asistente Pyxis en tiempo real y acceso a GitHub OAuth. |
 | `/register` | `RegisterComponent` | Creación de personaje (`RegisterCardComponent`) conectada a `POST /api/users/register`, con validación en vivo de las 4 runas de contraseña (`CipherRequirementsComponent`). |
+| `/auth/callback` | `AuthCallbackComponent` | Recepción de callback externo (`?token=...`), hidratación de sesión vía `GET /api/auth/me` y redirección al Roster. |
 | `/adventurers` | `AdventurersComponent` | Guild Roster: CRUD interactivo de aventureros conectado a `GET`, `PUT` y `DELETE /api/users`. |
 | `**` | Redirección a `/` | Fallback a la página principal. |
 
@@ -109,9 +110,8 @@ El frontend es una aplicación **Angular 22.3** basada en **Standalone Component
 - **`components/landing/`:** `NavbarComponent`, `HeroSectionComponent`, `BattleArenaComponent`, `QuestMapComponent`, `ZoneCardComponent`, `GuildInventoryComponent`, `QuestingComparisonComponent`, `SavePointCtaComponent`, `FooterComponent`.
 - **`components/auth/`:** `LoginCardComponent`, `RegisterCardComponent`, `CipherRequirementsComponent`, `FamiliarGuideCardComponent`.
 - **`components/shared/`:** Primitivas reutilizables `PixelIconComponent` y `RetroButtonComponent`.
-- **`services/` & `environments/`:** `UserService` consume `${environment.apiUrl}/users` (`https://orion-backend-yar4.onrender.com/api` en producción y `http://localhost:5092/api` en desarrollo local).
+- **`services/`, `interceptors/`, `guards/` & `environments/`:** `AuthService` (`/api/auth`) y `UserService` (`/api/users`) consumen `${environment.apiUrl}` (`https://orion-backend-yar4.onrender.com/api` en producción y `http://localhost:5092/api` en desarrollo local); `authInterceptor` adjunta automáticamente `Authorization: Bearer <token>` y limpia sesiones vencidas ante `401`.
 - **`models/` & `data/`:** Tipado estricto (`auth.models.ts`, `quest-landing.models.ts`, `user.models.ts`) y contenido estructurado (`quest-landing.data.ts`).
-- **Estado de integración Backend ↔ Frontend:** El registro (`/register`) y la gestión de aventureros (`/adventurers`) ya consumen `Orion.Api` mediante `HttpClient`. La pantalla `/login` permanece en modo preview pendiente de integrarse con `AuthController` (`/api/auth/login`).
 
 ---
 

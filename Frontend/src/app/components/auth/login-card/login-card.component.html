@@ -151,10 +151,20 @@
 
       <!-- Submit Action -->
       <div class="pt-1">
-        <app-retro-button variant="primary" size="lg" type="submit" [fullWidth]="true">
+        <app-retro-button
+          variant="primary"
+          size="lg"
+          type="submit"
+          [fullWidth]="true"
+          [disabled]="submitting()"
+        >
           <app-pixel-icon name="play-outline" [size]="14" class="text-[#00411c]" />
           <span class="font-display text-[11.5px] sm:text-[14px] tracking-[0.06em]">
-            [ RESUME ADVENTURE ]
+            @if (submitting()) {
+              [ UNLOCKING SLOT 01... ]
+            } @else {
+              [ RESUME ADVENTURE ]
+            }
           </span>
         </app-retro-button>
       </div>

@@ -1,3 +1,5 @@
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { of } from 'rxjs';
@@ -32,10 +34,14 @@ const mockUserService = {
 
 describe('RegisterComponent', () => {
   beforeEach(async () => {
+    window.localStorage.clear();
+    window.sessionStorage.clear();
     await TestBed.configureTestingModule({
       imports: [RegisterComponent],
       providers: [
         provideRouter([]),
+        provideHttpClient(),
+        provideHttpClientTesting(),
         { provide: UserService, useValue: mockUserService },
       ],
     }).compileComponents();

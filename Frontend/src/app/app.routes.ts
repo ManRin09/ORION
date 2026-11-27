@@ -18,6 +18,12 @@ export const routes: Routes = [
       import('./views/register/register.component').then((m) => m.RegisterComponent),
   },
   {
+    path: 'auth/callback',
+    title: 'Authenticating — ORION 16-Bit Realm',
+    loadComponent: () =>
+      import('./views/auth-callback/auth-callback.component').then((m) => m.AuthCallbackComponent),
+  },
+  {
     path: 'adventurers',
     title: 'Adventurers Roster — ORION 16-Bit Realm',
     loadComponent: () =>
