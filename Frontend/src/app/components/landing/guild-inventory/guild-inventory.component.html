@@ -1,0 +1,113 @@
+<section
+  id="guild-inventory"
+  aria-labelledby="guild-inventory-heading"
+  class="bg-[#101222] border-b-2 border-[#3e4a3e]"
+>
+  <div class="max-w-[1280px] mx-auto px-5 sm:px-8 lg:px-10 py-14 lg:py-16">
+    <!-- Centered Header -->
+    <div class="text-center max-w-[700px] mx-auto mb-14">
+      <div
+        class="inline-flex items-center gap-2 bg-[#181a2a] border border-[#3e4a3e] px-3.5 py-1.5 mb-5"
+      >
+        <app-pixel-icon name="swords" [size]="13" />
+        <span class="font-code text-[11px] tracking-[0.12em] text-[#63de86] uppercase">
+          TACTICAL ADVANTAGES
+        </span>
+      </div>
+
+      <h2
+        id="guild-inventory-heading"
+        class="font-display text-[22px] sm:text-[30px] leading-[1.4] tracking-[0.02em] text-[#e1e1f7]"
+      >
+        <span class="block">GUILD INVENTORY &amp;</span>
+        <span class="block mt-1">MECHANICS</span>
+      </h2>
+
+      <p class="mt-5 text-[13.5px] sm:text-[14px] leading-[1.7] text-[#bdcabb]">
+        Built from the ground up for deep mental absorption, active muscle memory, and zero
+        terminal friction.
+      </p>
+    </div>
+
+    <!-- 3-Column Mechanics Cards -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-7 items-stretch">
+      @for (item of items; track item.id) {
+        <article
+          class="bg-[#1c1e2f] border-2 border-[#3e4a3e] pixel-shadow-lg p-7 flex flex-col justify-between transition-colors hover:border-[#63de86]/70"
+        >
+          <div>
+            <!-- Retro Square Icon Badge -->
+            <div
+              class="w-11 h-11 border-2 border-black pixel-shadow-sm flex items-center justify-center mb-6"
+              [class]="iconBadgeClass(item.iconTone)"
+            >
+              <app-pixel-icon [name]="item.icon" [size]="22" />
+            </div>
+
+            <h3
+              class="font-display text-[15px] sm:text-[17px] leading-[1.5] tracking-[0.02em] text-[#e1e1f7] mb-5"
+            >
+              {{ item.title }}
+            </h3>
+
+            <p class="text-[12.5px] sm:text-[13px] leading-[1.75] text-[#bdcabb] mb-8">
+              {{ item.description }}
+            </p>
+          </div>
+
+          <!-- Embedded Feature Telemetry Widget -->
+          @switch (item.widgetKind) {
+            @case ('assertion') {
+              <div class="bg-[#0b0d1c] border border-[#3e4a3e] p-4">
+                <div
+                  class="flex items-center justify-between text-[10.5px] tracking-[0.06em] mb-2.5"
+                >
+                  <span class="text-[#63de86] font-semibold">✓ ASSERTION 01</span>
+                  <span class="text-[#bdcabb] tabular-nums">12ms</span>
+                </div>
+                <p class="font-code text-[12px] font-semibold text-[#63de86] mb-3">
+                  slay_dragon() == 85 [PASSED]
+                </p>
+                <div class="w-full h-2.5 bg-[#272939] overflow-hidden" aria-hidden="true">
+                  <div class="w-full h-full bg-[#63de86]"></div>
+                </div>
+              </div>
+            }
+            @case ('clue') {
+              <div class="bg-[#0b0d1c] border border-[#3e4a3e] p-4">
+                <p
+                  class="flex items-center gap-2 font-pixel text-[11px] tracking-[0.06em] text-[#f0bf69] mb-2"
+                >
+                  <span class="w-2 h-2 bg-[#f0bf69] inline-block" aria-hidden="true"></span>
+                  <span>FAMILIAR CLUE:</span>
+                </p>
+                <p class="text-[11.5px] leading-[1.65] italic text-[#e1e1f7]">
+                  “What does the call stack do after line 12 executes? Try tracing the return value
+                  with pen &amp; paper.”
+                </p>
+              </div>
+            }
+            @case ('loot') {
+              <div
+                class="bg-[#0b0d1c] border border-[#3e4a3e] px-4 py-4 flex items-center justify-between gap-3"
+              >
+                <div class="inline-flex items-center gap-2.5">
+                  <app-pixel-icon name="gold-bag" [size]="20" />
+                  <span class="font-pixel text-[12.5px] text-[#f0bf69] tracking-[0.04em]">
+                    1,420 GP
+                  </span>
+                </div>
+                <div class="inline-flex items-center gap-2">
+                  <app-pixel-icon name="potion" [size]="20" />
+                  <span class="font-pixel text-[12.5px] text-[#99cbff] tracking-[0.04em]">
+                    2x POTIONS
+                  </span>
+                </div>
+              </div>
+            }
+          }
+        </article>
+      }
+    </div>
+  </div>
+</section>

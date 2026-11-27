@@ -1,0 +1,80 @@
+<section
+  id="comparison"
+  aria-labelledby="comparison-heading"
+  class="bg-[#0b0d1c] border-b-2 border-[#3e4a3e]"
+>
+  <div class="max-w-[1280px] mx-auto px-5 sm:px-8 lg:px-10 py-14 lg:py-16">
+    <h2
+      id="comparison-heading"
+      class="font-display text-[20px] sm:text-[26px] lg:text-[28px] leading-[1.35] tracking-[0.02em] text-[#e1e1f7] mb-10"
+    >
+      WHY ACTIVE QUESTING WINS
+    </h2>
+
+    <!-- Retro Comparison Table -->
+    <div class="bg-[#1c1e2f] border-2 border-[#3e4a3e] pixel-shadow-lg overflow-x-auto">
+      <table class="w-full min-w-[760px] border-collapse text-left">
+        <thead>
+          <tr class="bg-[#101222] border-b-2 border-[#3e4a3e]">
+            <th
+              scope="col"
+              class="w-[18%] px-5 py-4.5 font-pixel text-[12px] tracking-[0.06em] text-[#e1e1f7]"
+            >
+              CRITERIA
+            </th>
+            <th
+              scope="col"
+              class="w-[31%] px-5 py-4.5 font-pixel text-[12px] tracking-[0.06em] text-[#63de86] bg-[#181c2b] border-x border-[#3e4a3e]"
+            >
+              ORION 16-BIT QUESTS
+            </th>
+            <th
+              scope="col"
+              class="w-[27%] px-5 py-4.5 font-pixel text-[12px] tracking-[0.06em] text-[#bdcabb]"
+            >
+              PASSIVE VIDEO TUTORIALS
+            </th>
+            <th
+              scope="col"
+              class="w-[24%] px-5 py-4.5 font-pixel text-[12px] tracking-[0.06em] text-[#bdcabb]"
+            >
+              $20,000 BOOTCAMPS
+            </th>
+          </tr>
+        </thead>
+
+        <tbody>
+          @for (row of rows; track row.id; let isLast = $last) {
+            <tr
+              class="transition-colors hover:bg-[#272939]/35"
+              [class.border-b]="!isLast"
+              [class.border-[#2f3142]]="!isLast"
+            >
+              <th
+                scope="row"
+                class="px-5 py-4.5 text-[12px] font-semibold text-[#e1e1f7] align-middle"
+              >
+                {{ row.criteria }}
+              </th>
+              <td
+                class="px-5 py-4.5 font-pixel text-[12px] tracking-[0.04em] bg-[#1f2235]/85 border-x border-[#3e4a3e] align-middle"
+                [class]="valueToneClass(row.orionTone)"
+              >
+                {{ row.orionValue }}
+              </td>
+              <td class="px-5 py-4.5 text-[12px] text-[#8a8ba0] align-middle">
+                {{ row.passiveValue }}
+              </td>
+              <td
+                class="px-5 py-4.5 text-[12px] align-middle"
+                [class]="valueToneClass(row.bootcampTone)"
+              >
+                {{ row.bootcampValue }}
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>

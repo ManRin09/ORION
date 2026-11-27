@@ -1,0 +1,127 @@
+<header
+  class="sticky top-0 z-50 bg-[#181a2a] border-b-2 border-[#3e4a3e] pixel-nav-shadow"
+>
+  <div class="max-w-[1280px] mx-auto px-5 sm:px-8 lg:px-10 h-16 flex items-center justify-between">
+    <!-- Left: Brand + Primary Navigation -->
+    <div class="flex items-center gap-6 lg:gap-7">
+      <a
+        routerLink="/"
+        (click)="selectNav('quest-map')"
+        class="inline-flex items-center gap-3 group"
+        aria-label="Orion 16-Bit Realm Home"
+      >
+        <span
+          class="w-8 h-8 bg-[#272939] border-2 border-[#3e4a3e] group-hover:border-[#f0bf69] flex items-center justify-center transition-colors"
+        >
+          <app-pixel-icon name="sparkle" [size]="16" />
+        </span>
+        <span
+          class="font-pixel font-bold text-[20px] sm:text-[22px] tracking-[0.14em] text-[#63de86]"
+        >
+          ORION
+        </span>
+      </a>
+
+      <nav class="hidden md:flex items-center gap-1.5" aria-label="Primary navigation">
+        @for (link of navLinks; track link.id) {
+          <a
+            routerLink="/"
+            [fragment]="link.fragment"
+            (click)="selectNav(link.id)"
+            class="px-4 py-2.5 text-[12px] tracking-[0.08em] uppercase transition-colors"
+            [class.bg-[#272939]]="isLinkActive(link.id)"
+            [class.text-[#63de86]]="isLinkActive(link.id)"
+            [class.font-semibold]="isLinkActive(link.id)"
+            [class.text-[#bdcabb]]="!isLinkActive(link.id)"
+            [class.hover:text-[#63de86]]="!isLinkActive(link.id)"
+            [class.hover:bg-[#272939]/60]="!isLinkActive(link.id)"
+            [attr.aria-current]="isLinkActive(link.id) ? 'page' : null"
+          >
+            {{ link.label }}
+          </a>
+        }
+      </nav>
+    </div>
+
+    <!-- Right: Auth + CTA + Adventurer Avatar -->
+    <div class="hidden md:flex items-center gap-3.5">
+      <a
+        routerLink="/login"
+        [attr.aria-current]="isLoginRoute() ? 'page' : null"
+        class="bg-[#1c1e2f] border-2 pixel-shadow-sm px-4 py-2 text-[11px] font-medium tracking-[0.08em] text-[#e1e1f7] hover:border-[#63de86] hover:bg-[#272939] transition-colors uppercase"
+        [class.border-[#63de86]]="isLoginRoute()"
+        [class.border-[#3e4a3e]]="!isLoginRoute()"
+      >
+        LOG IN
+      </a>
+
+      <app-retro-button variant="primary" size="sm" routerLink="/register">
+        [ PRESS START ]
+      </app-retro-button>
+
+      <a
+        routerLink="/login"
+        aria-label="Adventurer sign in"
+        class="w-8 h-8 rounded-full bg-[#63de86] border-2 border-black pixel-shadow-sm flex items-center justify-center text-[#00411c] hover:bg-[#76ea98] transition-colors"
+      >
+        <app-pixel-icon name="user" [size]="15" />
+      </a>
+    </div>
+
+    <!-- Mobile Menu Toggle -->
+    <button
+      type="button"
+      class="md:hidden bg-[#1c1e2f] border-2 border-[#3e4a3e] px-3 py-1.5 font-pixel text-[11px] text-[#63de86]"
+      (click)="toggleMobileMenu()"
+      [attr.aria-expanded]="mobileMenuOpen()"
+      aria-controls="mobile-nav-panel"
+      aria-label="Toggle navigation menu"
+    >
+      {{ mobileMenuOpen() ? '[ X ]' : '[ MENU ]' }}
+    </button>
+  </div>
+
+  <!-- Mobile Dropdown -->
+  @if (mobileMenuOpen()) {
+    <div
+      id="mobile-nav-panel"
+      class="md:hidden bg-[#181a2a] border-t-2 border-[#3e4a3e] px-5 py-4 space-y-3"
+    >
+      <nav class="flex flex-col gap-1.5" aria-label="Mobile navigation">
+        @for (link of navLinks; track link.id) {
+          <a
+            routerLink="/"
+            [fragment]="link.fragment"
+            (click)="selectNav(link.id)"
+            class="px-3.5 py-2.5 text-xs tracking-[0.08em] uppercase border border-transparent"
+            [class.bg-[#272939]]="isLinkActive(link.id)"
+            [class.text-[#63de86]]="isLinkActive(link.id)"
+            [class.border-[#3e4a3e]]="isLinkActive(link.id)"
+            [class.text-[#bdcabb]]="!isLinkActive(link.id)"
+          >
+            {{ link.label }}
+          </a>
+        }
+      </nav>
+      <div class="pt-3 border-t border-[#2f3142] flex items-center gap-3">
+        <a
+          routerLink="/login"
+          (click)="mobileMenuOpen.set(false)"
+          class="flex-1 text-center bg-[#1c1e2f] border-2 border-[#3e4a3e] px-3 py-2 text-xs text-[#e1e1f7]"
+        >
+          LOG IN
+        </a>
+        <app-retro-button
+          class="flex-1"
+          variant="primary"
+          size="sm"
+          routerLink="/register"
+          [fullWidth]="true"
+          (pressed)="mobileMenuOpen.set(false)"
+        >
+          [ PRESS START ]
+        </app-retro-button>
+      </div>
+    </div>
+  }
+</header>

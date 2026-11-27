@@ -1,0 +1,30 @@
+<section
+  id="quest-map"
+  aria-labelledby="quest-map-heading"
+  class="bg-[#0b0d1c] border-b-2 border-[#3e4a3e]"
+>
+  <div class="max-w-[1280px] mx-auto px-5 sm:px-8 lg:px-10 py-14 lg:py-16">
+    <!-- Section Heading -->
+    <div class="max-w-[660px]">
+      <h2
+        id="quest-map-heading"
+        class="font-display text-[22px] sm:text-[28px] lg:text-[30px] leading-[1.35] tracking-[0.02em] text-[#e1e1f7]"
+      >
+        OVERWORLD QUEST MAP
+      </h2>
+      <p class="mt-4 text-[13.5px] sm:text-[14px] leading-[1.7] text-[#bdcabb]">
+        Trek across 3 legendary coding realms from the syntax grasslands to the backend citadel.
+        Complete micro-dungeons to forge your weapon loadout.
+      </p>
+    </div>
+
+    <div class="my-9 border-t border-[#2f3142]" aria-hidden="true"></div>
+
+    <!-- 3-Column Overworld Realm Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-7 items-stretch">
+      @for (zone of zones; track zone.id) {
+        <app-zone-card [zone]="zone" />
+      }
+    </div>
+  </div>
+</section>

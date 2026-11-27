@@ -1,0 +1,31 @@
+<div class="min-h-screen bg-[#0b0d1c] text-[#e1e1f7] flex flex-col">
+  <a
+    href="#login-main"
+    class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] bg-[#38b764] text-[#00411c] font-pixel font-bold text-xs px-4 py-2 border-2 border-black"
+  >
+    SKIP TO SIGN IN
+  </a>
+
+  <app-navbar />
+
+  <main
+    id="login-main"
+    class="flex-1 retro-crt-backdrop border-b-2 border-[#3e4a3e] px-5 sm:px-8 py-12 sm:py-16 flex items-center justify-center"
+  >
+    <div class="w-full max-w-[660px] flex flex-col gap-6">
+      <app-login-card
+        (loginSubmitted)="handleLoginSubmit($event)"
+        (validationFailed)="handleValidationFailed()"
+        (forgotScrollRequested)="handleForgotScroll()"
+        (githubLoginRequested)="handleGithubLogin()"
+      />
+
+      <app-familiar-guide-card
+        [message]="familiarNotice().message"
+        [tone]="familiarNotice().tone"
+      />
+    </div>
+  </main>
+
+  <app-footer />
+</div>

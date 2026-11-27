@@ -1,0 +1,27 @@
+<div class="min-h-screen bg-[#101222] text-[#e1e1f7] flex flex-col">
+  <a
+    href="#register-main"
+    class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] bg-[#38b764] text-[#00411c] font-pixel font-bold text-xs px-4 py-2 border-2 border-black"
+  >
+    SKIP TO CHARACTER CREATION
+  </a>
+
+  <app-navbar />
+
+  <main
+    id="register-main"
+    class="relative flex-1 bg-[#101222] border-b border-[#2f3142] px-5 sm:px-8 py-10 sm:py-14 flex flex-col items-center justify-center"
+  >
+    <span
+      class="hidden sm:block absolute top-4 left-8 w-2 h-2 bg-[#38b764]"
+      aria-hidden="true"
+    ></span>
+
+    <div class="w-full max-w-[672px] flex flex-col gap-6">
+      <app-register-card />
+      <div class="w-full h-1 bg-[#879486] pixel-shadow-sm" aria-hidden="true"></div>
+    </div>
+  </main>
+
+  <app-footer />
+</div>

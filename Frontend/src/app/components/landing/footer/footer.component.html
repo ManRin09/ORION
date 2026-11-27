@@ -1,0 +1,31 @@
+<footer class="bg-[#0b0d1c]">
+  <div class="max-w-[1280px] mx-auto px-5 sm:px-8 lg:px-10">
+    <!-- Top Right Utility Links -->
+    <nav
+      aria-label="Footer navigation"
+      class="py-7 flex flex-wrap justify-start sm:justify-end items-center gap-x-7 gap-y-3"
+    >
+      @for (link of links; track link.label) {
+        <a
+          routerLink="/"
+          [fragment]="link.fragment"
+          class="text-[11px] tracking-[0.08em] text-[#bdcabb] hover:text-[#63de86] uppercase transition-colors"
+        >
+          {{ link.label }}
+        </a>
+      }
+    </nav>
+
+    <!-- Bottom Legal & Arcade Tagline -->
+    <div
+      class="border-t border-[#2f3142] py-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
+    >
+      <p class="text-[10.5px] tracking-[0.06em] text-[#8a8ba0]">
+        © 2024 ORION 16-BIT REALM. ALL RIGHTS RESERVED. CODE YOUR DESTINY.
+      </p>
+      <p class="font-pixel text-[11px] tracking-[0.12em] text-[#66687a]">
+        INSERT COIN TO CONTINUE
+      </p>
+    </div>
+  </div>
+</footer>

@@ -1,0 +1,134 @@
+<div
+  class="bg-[#1c1e2f] border-[3px] border-[#3e4a3e] pixel-shadow-lg"
+  aria-label="Interactive Python Quest Battle Arena"
+>
+  <!-- Boss Battle Header -->
+  <div class="bg-[#181a2a] border-b-2 border-[#3e4a3e] px-5 py-4">
+    <div class="flex items-center justify-between gap-3">
+      <div class="flex items-center gap-2.5 min-w-0">
+        <app-pixel-icon name="swords" [size]="16" />
+        <p class="font-pixel text-[11px] sm:text-[13px] tracking-[0.06em] text-[#ffb4ab] truncate">
+          [ BATTLE: INFINITE LOOP GOBLIN LV.3 ]
+        </p>
+      </div>
+      @if (hasInteracted()) {
+        <button
+          type="button"
+          (click)="resetBattle()"
+          class="font-pixel text-[10px] text-[#99cbff] hover:text-[#63de86] border border-[#3e4a3e] px-2 py-0.5 cursor-pointer shrink-0"
+        >
+          [ RESET ]
+        </button>
+      }
+    </div>
+
+    <!-- Boss HP Meter -->
+    <div class="mt-2.5 flex items-center gap-3">
+      <span class="font-pixel text-[11px] text-[#e1e1f7] tracking-wider">HP</span>
+      <div
+        class="w-32 sm:w-36 h-3 bg-[#272939] border border-[#3e4a3e] overflow-hidden"
+        role="progressbar"
+        [attr.aria-valuenow]="goblinHp()"
+        aria-valuemin="0"
+        [attr.aria-valuemax]="maxHp"
+        aria-label="Infinite Loop Goblin Hit Points"
+      >
+        <div
+          class="h-full bg-[#ffb4ab] transition-all duration-300"
+          [style.width.%]="hpBarPercent()"
+        ></div>
+      </div>
+      <span class="font-pixel text-[11px] text-[#ffb4ab] tabular-nums">
+        {{ goblinHp() }}/{{ maxHp }}
+      </span>
+    </div>
+  </div>
+
+  <!-- Python Micro-Dungeon Code Editor -->
+  <div class="px-5 pt-5 pb-4 bg-[#101222]/55">
+    <div class="mb-3.5">
+      <span
+        class="inline-block bg-[#181a2a] border border-[#3e4a3e] px-3 py-1.5 font-code font-semibold text-[11.5px] tracking-[0.02em] text-[#f0bf69]"
+      >
+        slay_dragon.py
+      </span>
+    </div>
+
+    <div
+      class="bg-[#181a2a] border-2 border-[#3e4a3e] px-4 py-4 font-code text-[11.5px] sm:text-[12.5px] leading-[1.8] overflow-x-auto"
+    >
+      <pre class="m-0"><code>@for (line of codeLines; track line.lineNumber) {<span
+        class="flex items-baseline"
+        [class.bg-[#38b764]/12]="line.isFixLine && hasInteracted()"
+      ><span class="w-5 shrink-0 select-none text-right text-[#66687a] pr-2.5 mr-3.5 border-r border-[#2f3142]">{{ line.lineNumber }}</span><span class="whitespace-pre">@if (line.isFixLine && hasInteracted()) {<span class="text-[#63de86]">        mana_pool -= 10  # SPELL FIXED!</span>} @else {@for (tok of line.tokens; track $index) {<span [class]="tokenClass(tok.tone)">{{ tok.text }}</span>}}</span></span>}</code></pre>
+    </div>
+
+    <!-- Action Bar -->
+    <div class="mt-4 flex flex-wrap items-center justify-between gap-3">
+      <app-retro-button variant="primary" size="md" (pressed)="castRunCode()">
+        <app-pixel-icon name="bolt" [size]="14" class="text-[#00411c]" />
+        @if (isDefeated()) {
+          <span>[ GOBLIN SLAIN · REPLAY ]</span>
+        } @else {
+          <span>[ CAST RUN CODE (15 MP) ]</span>
+        }
+      </app-retro-button>
+
+      <div class="flex items-center gap-2 font-code text-[11px]">
+        <span class="bg-[#181a2a] border border-[#3e4a3e] px-2.5 py-1.5 text-[#99cbff] tabular-nums">
+          MP: {{ playerMp() }}/{{ maxMp }}
+        </span>
+        <span class="bg-[#181a2a] border border-[#3e4a3e] px-2.5 py-1.5 text-[#f0bf69] tabular-nums">
+          ATK: {{ attackPower }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Quest Rewards Strip -->
+    <div
+      class="mt-5 pt-1 flex flex-wrap items-center justify-between gap-2 font-pixel text-[10.5px] sm:text-[11px] tracking-[0.04em]"
+    >
+      <span class="text-[#f0bf69]">[ +25 XP REWARD ]</span>
+      <span class="inline-flex items-center gap-1 text-[#e1e1f7]">
+        [ 14-DAY STREAK <app-pixel-icon name="flame" [size]="13" /> ]
+      </span>
+      <span class="text-[#99cbff]">[ DIAMOND GUILD ]</span>
+    </div>
+  </div>
+
+  <!-- Socratic AI Familiar Dialogue Box -->
+  <div class="bg-[#1c1e2f] border-t-2 border-[#3e4a3e] px-5 py-5 flex items-start gap-4">
+    <div
+      class="w-13 h-13 shrink-0 bg-[#101222] border-2 border-[#f0bf69] flex items-center justify-center p-1"
+    >
+      <app-pixel-icon name="owl" [size]="38" />
+    </div>
+
+    <div class="min-w-0">
+      <p class="font-pixel text-[11.5px] tracking-[0.06em] text-[#f0bf69] mb-1.5">
+        ORION FAMILIAR SAYS:
+      </p>
+
+      @if (isDefeated()) {
+        <p class="text-[12px] sm:text-[12.5px] leading-[1.65] text-[#63de86]">
+          “Victory, adventurer! Decrementing
+          <code class="bg-[#272939] px-1.5 py-0.5 text-[#f0bf69]">mana_pool</code> broke the
+          infinite vortex and shattered the goblin’s shield. +25 XP claimed!”
+        </p>
+      } @else if (hasInteracted()) {
+        <p class="text-[12px] sm:text-[12.5px] leading-[1.65] text-[#e1e1f7]">
+          “Direct hit! Your WASM assertion dealt
+          <span class="text-[#63de86] font-semibold">84 DMG</span> in 12ms. Cast again to finish
+          the Infinite Loop Goblin!”
+        </p>
+      } @else {
+        <p class="text-[12px] sm:text-[12.5px] leading-[1.65] text-[#e1e1f7]">
+          “Halt, adventurer! Check your
+          <code class="text-[#63de86]">while</code> loop on line 4. What happens when
+          <code class="bg-[#272939] px-1.5 py-0.5 text-[#f0bf69]">mana_pool</code> never decreases?
+          You will be trapped in the infinite vortex!”
+        </p>
+      }
+    </div>
+  </div>
+</div>

@@ -1,0 +1,79 @@
+<div
+  aria-label="Password cipher integrity requirements"
+  class="bg-[#101222] border-2 px-4 py-4 transition-colors"
+  [class.border-[#3e4a3e]]="metCount() === 0"
+  [class.border-[#f0bf69]/70]="hasProgress()"
+  [class.border-[#63de86]]="isComplete()"
+>
+  <!-- Header Row -->
+  <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+    <div class="flex items-center gap-2 min-w-0">
+      <app-pixel-icon
+        name="shield-check"
+        [size]="15"
+        [class.text-[#f0bf69]]="!isComplete()"
+        [class.text-[#63de86]]="isComplete()"
+      />
+      <span
+        class="font-display text-[9px] sm:text-[10px] tracking-[0.04em] text-[#e1e1f7]"
+      >
+        [ CIPHER INTEGRITY REQUIREMENTS ]
+      </span>
+    </div>
+
+    <span
+      role="status"
+      aria-live="polite"
+      class="font-code text-[10px] tracking-[0.06em] tabular-nums whitespace-nowrap"
+      [class.text-[#8a8ba0]]="metCount() === 0"
+      [class.text-[#f0bf69]]="hasProgress()"
+      [class.text-[#63de86]]="isComplete()"
+      [class.font-semibold]="isComplete()"
+    >
+      STATUS: {{ metCount() }}/{{ totalRunes() }} RUNES
+    </span>
+  </div>
+
+  <!-- 4-Rune Segmented Integrity Bar -->
+  <div class="grid grid-cols-4 gap-1.5 mb-3.5" aria-hidden="true">
+    @for (rune of runes(); track rune.id; let idx = $index) {
+      <span
+        class="h-1.5 transition-colors duration-150"
+        [class.bg-[#272939]]="idx >= metCount()"
+        [class.bg-[#f0bf69]]="idx < metCount() && !isComplete()"
+        [class.bg-[#63de86]]="idx < metCount() && isComplete()"
+      ></span>
+    }
+  </div>
+
+  <!-- Live 2x2 Rune Checklist -->
+  <ul class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2.5">
+    @for (rune of runes(); track rune.id) {
+      <li
+        class="flex items-center gap-2 font-code text-[10.5px] sm:text-[11px] tracking-[0.04em] transition-colors"
+        [attr.data-rune]="rune.id"
+        [attr.data-met]="rune.met"
+        [class.text-[#63de86]]="rune.met"
+        [class.font-semibold]="rune.met"
+        [class.text-[#8a8ba0]]="!rune.met"
+      >
+        @if (rune.met) {
+          <span
+            class="inline-flex items-center justify-center w-3.5 h-3.5 bg-[#38b764] text-[#00411c] text-[10px] font-bold leading-none shrink-0"
+            aria-hidden="true"
+          >
+            ✓
+          </span>
+        } @else {
+          <span
+            class="inline-flex items-center justify-center w-3.5 h-3.5 text-[#5a5c6d] text-[10px] leading-none shrink-0"
+            aria-hidden="true"
+          >
+            ◆
+          </span>
+        }
+        <span>{{ rune.label }}</span>
+      </li>
+    }
+  </ul>
+</div>

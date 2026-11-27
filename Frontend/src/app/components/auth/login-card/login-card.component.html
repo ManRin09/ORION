@@ -1,0 +1,197 @@
+<section
+  aria-labelledby="login-heading"
+  class="bg-[#181a2a] border-2 border-[#3e4a3e] pixel-shadow-lg"
+>
+  <!-- Retro Window Title Bar -->
+  <div
+    class="bg-[#0b0d1c] border-b-2 border-[#3e4a3e] px-5 py-3.5 flex items-center justify-between gap-3"
+  >
+    <div class="flex items-center gap-3 min-w-0">
+      <app-pixel-icon name="save-disk" [size]="20" />
+      <span
+        class="font-display text-[9.5px] sm:text-[13px] tracking-[0.05em] text-[#f0bf69] truncate"
+      >
+        [ SLOT 01: LOAD GAME ]
+      </span>
+    </div>
+
+    <div class="flex items-center gap-1.5 shrink-0">
+      <span
+        class="w-3.5 h-3.5 bg-[#272939] border border-[#3e4a3e] inline-block"
+        aria-hidden="true"
+      ></span>
+      <span
+        class="w-3.5 h-3.5 bg-[#272939] border border-[#3e4a3e] inline-block"
+        aria-hidden="true"
+      ></span>
+      <a
+        routerLink="/"
+        aria-label="Close login window and return home"
+        class="w-4 h-4 bg-[#ffb4ab] border border-black text-[#101222] font-code font-bold text-[11px] leading-none flex items-center justify-center hover:bg-[#ff9c90] transition-colors"
+      >
+        ×
+      </a>
+    </div>
+  </div>
+
+  <!-- Login Form Body -->
+  <div class="px-6 sm:px-8 py-8">
+    <h1
+      id="login-heading"
+      class="font-code font-bold text-[21px] sm:text-[23px] tracking-[0.04em] text-[#e1e1f7] uppercase"
+    >
+      SIGN IN TO ORION
+    </h1>
+    <p class="mt-1.5 text-[12.5px] sm:text-[13px] leading-relaxed text-[#bdcabb] mb-7">
+      Enter your credentials to resume your coding streak and daily quests.
+    </p>
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" novalidate class="space-y-6">
+      <!-- Field 1: Adventurer Name or Email -->
+      <div>
+        <div class="flex items-center justify-between gap-2 mb-2">
+          <label
+            for="login-identifier"
+            class="inline-flex items-center gap-2 font-pixel text-[11px] sm:text-[11.5px] tracking-[0.05em] text-[#63de86]"
+          >
+            <app-pixel-icon name="id-badge" [size]="14" class="text-[#63de86]" />
+            <span>ADVENTURER NAME OR EMAIL</span>
+          </label>
+          <span class="font-code text-[10px] tracking-[0.06em] text-[#8a8ba0] whitespace-nowrap shrink-0">
+            [ REQUIRED ]
+          </span>
+        </div>
+
+        <input
+          id="login-identifier"
+          type="text"
+          formControlName="identifier"
+          autocomplete="username"
+          placeholder="warrior_dev@orion.realm"
+          [attr.aria-invalid]="showFieldError('identifier')"
+          [attr.aria-describedby]="showFieldError('identifier') ? 'identifier-error' : null"
+          class="w-full bg-[#0b0d1c] border-2 px-4 py-3.5 font-code text-[13px] text-[#e1e1f7] placeholder:text-[#66687a] outline-none transition-colors"
+          [class.border-[#ffb4ab]]="showFieldError('identifier')"
+          [class.border-[#2f3142]]="!showFieldError('identifier')"
+          [class.focus:border-[#63de86]]="!showFieldError('identifier')"
+        />
+
+        @if (showFieldError('identifier')) {
+          <p id="identifier-error" role="alert" class="mt-1.5 text-[11px] text-[#ffb4ab]">
+            Enter your adventurer name or email (at least 3 characters).
+          </p>
+        }
+      </div>
+
+      <!-- Field 2: Password / Secret Spell -->
+      <div>
+        <div class="flex items-center justify-between gap-2 mb-2">
+          <label
+            for="login-password"
+            class="inline-flex items-center gap-2 font-pixel text-[11px] sm:text-[11.5px] tracking-[0.05em] text-[#63de86]"
+          >
+            <app-pixel-icon name="key" [size]="14" class="text-[#63de86]" />
+            <span>PASSWORD / SECRET SPELL</span>
+          </label>
+          <button
+            type="button"
+            (click)="forgotScrollRequested.emit()"
+            class="font-pixel text-[9.5px] sm:text-[10px] tracking-[0.05em] text-[#f0bf69] hover:text-[#ffd88c] cursor-pointer whitespace-nowrap shrink-0 transition-colors"
+          >
+            ? FORGOT SCROLL ?
+          </button>
+        </div>
+
+        <div
+          class="relative flex items-center bg-[#0b0d1c] border-2 transition-colors"
+          [class.border-[#ffb4ab]]="showFieldError('password')"
+          [class.border-[#2f3142]]="!showFieldError('password')"
+          [class.focus-within:border-[#63de86]]="!showFieldError('password')"
+        >
+          <input
+            id="login-password"
+            [type]="showPassword() ? 'text' : 'password'"
+            formControlName="password"
+            autocomplete="current-password"
+            placeholder="••••••••••••"
+            [attr.aria-invalid]="showFieldError('password')"
+            [attr.aria-describedby]="showFieldError('password') ? 'password-error' : null"
+            class="w-full bg-transparent px-4 py-3.5 pr-3 font-code text-[13px] text-[#e1e1f7] placeholder:text-[#66687a] outline-none"
+          />
+
+          <button
+            type="button"
+            (click)="togglePasswordVisibility()"
+            [attr.aria-pressed]="showPassword()"
+            [attr.aria-label]="showPassword() ? 'Hide secret spell' : 'Show secret spell'"
+            class="mr-2 shrink-0 bg-[#1c1e2f] border border-[#3e4a3e] pixel-shadow-sm px-3 py-1.5 font-pixel text-[10px] tracking-[0.05em] text-[#99cbff] hover:border-[#99cbff] hover:bg-[#272939] cursor-pointer whitespace-nowrap transition-colors"
+          >
+            {{ showPassword() ? '[ HIDE ]' : '[ SHOW ]' }}
+          </button>
+        </div>
+
+        @if (showFieldError('password')) {
+          <p id="password-error" role="alert" class="mt-1.5 text-[11px] text-[#ffb4ab]">
+            Your secret spell must be at least 6 characters long.
+          </p>
+        }
+      </div>
+
+      <!-- Remember Terminal Checkbox -->
+      <label class="inline-flex items-center gap-3 cursor-pointer select-none group">
+        <input type="checkbox" formControlName="rememberTerminal" class="sr-only peer" />
+        <span
+          class="w-5 h-5 border-2 border-[#3e4a3e] bg-[#0b0d1c] peer-checked:bg-[#38b764] peer-checked:border-[#63de86] peer-focus-visible:outline-2 peer-focus-visible:outline-[#63de86] peer-focus-visible:outline-offset-2 inline-flex items-center justify-center transition-colors"
+          aria-hidden="true"
+        ></span>
+        <span class="text-[12.5px] sm:text-[13px] text-[#e1e1f7] group-hover:text-white">
+          Remember on this magic terminal
+        </span>
+      </label>
+
+      <!-- Submit Action -->
+      <div class="pt-1">
+        <app-retro-button variant="primary" size="lg" type="submit" [fullWidth]="true">
+          <app-pixel-icon name="play-outline" [size]="14" class="text-[#00411c]" />
+          <span class="font-display text-[11.5px] sm:text-[14px] tracking-[0.06em]">
+            [ RESUME ADVENTURE ]
+          </span>
+        </app-retro-button>
+      </div>
+    </form>
+
+    <!-- External Archive Divider -->
+    <div class="my-7 flex items-center gap-4" aria-hidden="true">
+      <span class="flex-1 border-t border-[#2f3142]"></span>
+      <span class="font-pixel text-[10.5px] tracking-[0.1em] text-[#8a8ba0]">
+        OR EXTERNAL ARCHIVE
+      </span>
+      <span class="flex-1 border-t border-[#2f3142]"></span>
+    </div>
+
+    <!-- GitHub Guild OAuth Button -->
+    <div class="flex justify-center">
+      <button
+        type="button"
+        (click)="githubLoginRequested.emit()"
+        class="inline-flex items-center justify-center gap-3 bg-[#1c1e2f] border-2 border-[#3e4a3e] pixel-shadow-sm px-8 py-3 font-pixel text-[11.5px] sm:text-[12px] tracking-[0.06em] text-[#e1e1f7] hover:border-[#63de86] hover:bg-[#272939] active:translate-x-[1px] active:translate-y-[1px] cursor-pointer transition-colors"
+      >
+        <app-pixel-icon name="github" [size]="18" class="text-[#e1e1f7]" />
+        <span>[ GITHUB GUILD ]</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Card Footer Prompt -->
+  <div
+    class="bg-[#0b0d1c]/75 border-t-2 border-[#2f3142] px-6 sm:px-8 py-4 flex flex-wrap items-center justify-between gap-3"
+  >
+    <p class="text-[12px] text-[#bdcabb]">No character created yet?</p>
+    <a
+      routerLink="/register"
+      class="font-pixel text-[11.5px] tracking-[0.05em] text-[#63de86] underline underline-offset-4 decoration-[#38b764] hover:text-[#86f0a5] transition-colors"
+    >
+      [ CREATE NEW CHARACTER ]
+    </a>
+  </div>
+</section>

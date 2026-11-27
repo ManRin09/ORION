@@ -1,0 +1,52 @@
+@Orion.Api_HostAddress = http://localhost:5092
+@UserId = 00000000-0000-0000-0000-000000000000
+
+### 1. Register a valid adventurer (expects 201 Created)
+POST {{Orion.Api_HostAddress}}/api/users/register
+Content-Type: application/json
+
+{
+  "firstName": "Arthur",
+  "middleName": "Pendragon",
+  "email": "Arthur.Pendragon@Orion.Realm",
+  "username": null,
+  "password": "Orion!Spell2026",
+  "confirmPassword": "Orion!Spell2026",
+  "acceptTerms": true
+}
+
+### 2. Register with invalid cipher runes & unchecked terms (expects 400 Bad Request ProblemDetails)
+POST {{Orion.Api_HostAddress}}/api/users/register
+Content-Type: application/json
+
+{
+  "firstName": "Arthur",
+  "middleName": null,
+  "email": "weak@orion.realm",
+  "username": "weak_mage",
+  "password": "weak",
+  "confirmPassword": "mismatch",
+  "acceptTerms": false
+}
+
+### 3. Get adventurer by ID (expects 200 OK or 404 Not Found)
+GET {{Orion.Api_HostAddress}}/api/users/{{UserId}}
+Accept: application/json
+
+### 4. List active adventurers with pagination (expects 200 OK)
+GET {{Orion.Api_HostAddress}}/api/users?pageNumber=1&pageSize=10
+Accept: application/json
+
+### 5. Update adventurer profile (expects 200 OK)
+PUT {{Orion.Api_HostAddress}}/api/users/{{UserId}}/profile
+Content-Type: application/json
+
+{
+  "firstName": "Arthur",
+  "middleName": "High King",
+  "username": "king_arthur",
+  "avatarUrl": "https://avatars.githubusercontent.com/u/1?v=4"
+}
+
+### 6. Soft-delete adventurer (expects 204 No Content)
+DELETE {{Orion.Api_HostAddress}}/api/users/{{UserId}}

@@ -1,0 +1,105 @@
+<section
+  id="top"
+  aria-labelledby="hero-heading"
+  class="hero-dot-grid border-b-2 border-[#3e4a3e]"
+>
+  <div class="max-w-[1280px] mx-auto px-5 sm:px-8 lg:px-10 py-12 lg:py-14">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-start">
+      <!-- Left Column: Quest Pitch, CTAs & Live Guild Stats -->
+      <div class="lg:col-span-6 flex flex-col items-start">
+        <!-- Quest Status Pill -->
+        <div
+          class="inline-flex items-center gap-2.5 bg-[#181a2a] border-2 border-[#f0bf69] px-3.5 py-2 mb-7"
+        >
+          <span class="w-2.5 h-2.5 bg-[#63de86] inline-block" aria-hidden="true"></span>
+          <span class="text-[#f0bf69] text-[10px] leading-none" aria-hidden="true">▸</span>
+          <span class="font-pixel text-[11px] sm:text-[12px] tracking-[0.08em] text-[#f0bf69]">
+            QUEST 01 AVAILABLE · LEVEL 1 NOVICE
+          </span>
+        </div>
+
+        <!-- Primary Pixel Headline -->
+        <h1
+          id="hero-heading"
+          class="font-display text-[23px] sm:text-[30px] xl:text-[33px] leading-[1.38] tracking-[0.01em] text-[#e1e1f7] mb-7"
+        >
+          <span class="block">LEVEL UP YOUR</span>
+          <span class="block mt-1">
+            <span class="inline-block text-[#63de86] border-b-4 border-[#38b764] pb-0.5">CODE</span>
+            <span class="whitespace-nowrap"> IN 5-MINUTE</span>
+          </span>
+          <span class="block mt-1">QUESTS.</span>
+        </h1>
+
+        <!-- Subtitle -->
+        <p class="text-[14px] sm:text-[15px] leading-[1.7] text-[#bdcabb] max-w-[540px] mb-9">
+          Battle bugs in Python, Web, and Backend micro-dungeons with instant browser execution.
+          Your Socratic AI Familiar whispers tactical clues without spoiling the boss fight.
+        </p>
+
+        <!-- Primary & Secondary Stacked Actions -->
+        <div class="flex flex-col items-start gap-4 mb-9 w-full sm:w-auto">
+          <app-retro-button
+            variant="primary"
+            size="md"
+            href="#quest-map"
+            class="w-full sm:w-[325px]"
+            [fullWidth]="true"
+          >
+            [ START QUEST 1 (FREE) ]
+          </app-retro-button>
+
+          <app-retro-button
+            variant="secondary"
+            size="md"
+            href="#quest-map"
+            class="w-full sm:w-[260px]"
+            [fullWidth]="true"
+          >
+            [ VIEW SKILL TREE ]
+          </app-retro-button>
+        </div>
+
+        <!-- Social Proof Guild Telemetry Bar -->
+        <div
+          class="w-full bg-[#181a2a] border-2 border-[#3e4a3e] pixel-shadow px-4 sm:px-5 py-4 flex flex-wrap sm:flex-nowrap items-center justify-between gap-4"
+        >
+          @for (stat of guildStats; track stat.id; let isLast = $last) {
+            <div class="flex items-center gap-3">
+              <app-pixel-icon [name]="stat.icon" [size]="22" />
+              <div>
+                <p
+                  class="font-pixel text-[12px] sm:text-[13px] tracking-[0.05em] leading-tight"
+                  [class.text-[#63de86]]="stat.accent === 'green'"
+                  [class.text-[#f0bf69]]="stat.accent === 'gold'"
+                >
+                  {{ stat.value }}
+                </p>
+                <p class="text-[9.5px] tracking-[0.08em] text-[#bdcabb] mt-1 uppercase">
+                  {{ stat.caption }}
+                </p>
+              </div>
+            </div>
+
+            @if (!isLast) {
+              <span
+                class="hidden sm:block w-px h-8 bg-[#3e4a3e] shrink-0"
+                aria-hidden="true"
+              ></span>
+            }
+          }
+
+          <div class="hidden sm:flex items-center gap-4 shrink-0" aria-hidden="true">
+            <span class="w-px h-8 bg-[#3e4a3e]"></span>
+            <span class="w-2 h-2 bg-[#63de86]"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Interactive Battle Arena Widget -->
+      <div class="lg:col-span-6 w-full">
+        <app-battle-arena />
+      </div>
+    </div>
+  </div>
+</section>

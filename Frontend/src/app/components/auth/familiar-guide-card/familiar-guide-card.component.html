@@ -1,0 +1,48 @@
+<aside
+  aria-label="Pyxis the Familiar Socratic Guide"
+  class="bg-[#181a2a] border-2 border-[#3e4a3e] pixel-shadow-lg px-5 sm:px-6 py-5 flex items-center gap-5"
+>
+  <!-- Familiar Avatar & Tag -->
+  <div class="relative shrink-0 pb-1.5">
+    <div
+      class="w-15 h-15 bg-[#0b0d1c] border-2 border-[#2f3142] flex items-center justify-center pb-1.5"
+    >
+      <app-pixel-icon name="pyxis" [size]="34" />
+    </div>
+    <span
+      class="absolute -bottom-0.5 left-1/2 -translate-x-1/2 bg-[#42a7f7] text-[#090a13] font-pixel font-bold text-[8.5px] tracking-[0.08em] px-2 py-0.5 whitespace-nowrap"
+    >
+      FAMILIAR
+    </span>
+  </div>
+
+  <!-- Dialogue Content -->
+  <div class="flex-1 min-w-0 relative pr-4">
+    <div class="flex flex-wrap items-center gap-2.5 mb-1.5">
+      <p class="font-pixel font-bold text-[11.5px] sm:text-[12px] tracking-[0.06em] text-[#f0bf69]">
+        PYXIS THE FAMILIAR:
+      </p>
+      <span class="font-code text-[10px] tracking-[0.06em] text-[#8a8ba0]">
+        [ SOCRATIC GUIDE ]
+      </span>
+    </div>
+
+    <p
+      role="status"
+      aria-live="polite"
+      class="text-[12px] sm:text-[13px] leading-[1.65]"
+      [class.text-[#e1e1f7]]="tone() === 'default'"
+      [class.text-[#63de86]]="tone() === 'success'"
+      [class.text-[#f0bf69]]="tone() === 'warning'"
+    >
+      “{{ message() }}”
+    </p>
+
+    <span
+      class="absolute right-0 bottom-0 text-[9px] text-[#63de86] leading-none select-none"
+      aria-hidden="true"
+    >
+      ▼
+    </span>
+  </div>
+</aside>

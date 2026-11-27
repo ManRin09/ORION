@@ -1,0 +1,65 @@
+# ==============================================================================
+# Orion Monorepo Root .gitignore
+# Protects environment variables, DB secrets, build artifacts, and local caches
+# ==============================================================================
+
+# Environment variables & local secret configs
+.env
+.env.*
+*.env
+!.env.example
+!.env.template
+appsettings.Development.json
+appsettings.Local.json
+appsettings.Staging.json
+appsettings.Production.json
+appsettings.*.local.json
+secrets.json
+*.pem
+*.key
+*.pfx
+
+# .NET build outputs & test artifacts
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+[Tt]est[Rr]esult*/
+artifacts/
+*.user
+*.suo
+*.sln.iml
+*.binlog
+*.log
+
+# Angular / Node build outputs & caches
+node_modules/
+dist/
+.angular/
+out-tsc/
+coverage/
+tmp/
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Database local dumps & backups
+*.bak
+*.dump
+*.dump.gz
+*.sqlite
+*.sqlite3
+
+# IDEs & OS files
+.idea/
+.vs/
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.history/
+.DS_Store
+Thumbs.db
+*~
+*.swp
