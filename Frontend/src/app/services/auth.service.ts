@@ -1,9 +1,19 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { computed, inject, Injectable, signal } from '@angular/core';
-import { catchError, finalize, Observable, of, switchMap, tap } from 'rxjs';
+import { catchError, finalize, Observable, of, tap } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { AuthResponse, ChangePasswordRequest, LoginCredentials } from '../models/auth.models';
-import { UserResponse } from '../models/user.models';
+import {
+  AuthResponse,
+  ChangePasswordRequest,
+  LoginCredentials,
+  RegisterCharacterPayload,
+} from '../models/auth.models';
+import {
+  PagedResponse,
+  RegisterUserRequest,
+  UpdateUserProfileRequest,
+  UserResponse,
+} from '../models/user.models';
 
 interface StoredAuthSession {
   readonly accessToken: string;
@@ -19,7 +29,8 @@ const AUTH_STORAGE_KEY = 'orion.auth.session';
 })
 export class AuthService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = `${environment.apiUrl}/auth`;
+  private readonly authUrl = `${environment.apiUrl}/auth`;
+  private readonly usersUrl = `${environment.apiUrl}/users`;
 
   private readonly _accessToken = signal<string | null>(null);
   private readonly _expiresAtUtc = signal<string | null>(null);
@@ -36,11 +47,15 @@ export class AuthService {
     this.hydrateFromStorage();
   }
 
+  // ===========================================================================
+  // Authentication & Session Endpoints (/api/auth)
+  // ===========================================================================
+
   /**
    * Authenticates an adventurer via POST /api/auth/login and stores the JWT session.
    */
   login(credentials: LoginCredentials): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.baseUrl}/login`, credentials).pipe(
+    return this.http.post<AuthResponse>(`${this.authUrl}/login`, credentials).pipe(
       tap((response) => {
         this.persistSession({
           accessToken: response.accessToken,
@@ -56,7 +71,7 @@ export class AuthService {
    * Fetches the authenticated adventurer profile via GET /api/auth/me.
    */
   getCurrentUser(): Observable<UserResponse> {
-    return this.http.get<UserResponse>(`${this.baseUrl}/me`).pipe(
+    return this.http.get<UserResponse>(`${this.authUrl}/me`).pipe(
       tap((user) => {
         this._currentUser.set(user);
         this.syncStoredUser(user);
@@ -68,7 +83,7 @@ export class AuthService {
    * Updates the authenticated adventurer password via PUT /api/auth/password.
    */
   changePassword(request: ChangePasswordRequest): Observable<void> {
-    return this.http.put<void>(`${this.baseUrl}/password`, request);
+    return this.http.put<void>(`${this.authUrl}/password`, request);
   }
 
   /**
@@ -80,7 +95,7 @@ export class AuthService {
       return of(void 0);
     }
 
-    return this.http.delete<void>(`${this.baseUrl}/session`).pipe(
+    return this.http.delete<void>(`${this.authUrl}/session`).pipe(
       catchError(() => of(void 0)),
       finalize(() => this.clearSession()),
     );
@@ -90,7 +105,7 @@ export class AuthService {
    * Returns the backend OAuth entry endpoint for GitHub login.
    */
   getGitHubLoginUrl(): string {
-    return `${this.baseUrl}/github/login`;
+    return `${this.authUrl}/github/login`;
   }
 
   /**
@@ -106,10 +121,85 @@ export class AuthService {
       user: null,
     });
 
-    return this.getCurrentUser().pipe(
-      switchMap((user) => of(user)),
+    return this.getCurrentUser();
+  }
+
+  // ===========================================================================
+  // Adventurer / User CRUD Endpoints (/api/users)
+  // ===========================================================================
+
+  /**
+   * Registers a new adventurer ("Spawn into Orion") via POST /api/users/register.
+   */
+  register(request: RegisterUserRequest): Observable<UserResponse> {
+    return this.http.post<UserResponse>(`${this.usersUrl}/register`, request);
+  }
+
+  /**
+   * Adapter helper that maps RegisterCharacterPayload to backend RegisterUserRequest.
+   */
+  registerFromCharacterPayload(payload: RegisterCharacterPayload): Observable<UserResponse> {
+    const request: RegisterUserRequest = {
+      firstName: payload.firstName,
+      middleName: payload.middleTitle ? payload.middleTitle : null,
+      email: payload.email,
+      username: null,
+      password: payload.password,
+      confirmPassword: payload.password,
+      acceptTerms: payload.acceptedTerms,
+    };
+
+    return this.register(request);
+  }
+
+  /**
+   * Retrieves an adventurer by unique identifier (GUID) via GET /api/users/{id}.
+   */
+  getById(id: string): Observable<UserResponse> {
+    return this.http.get<UserResponse>(`${this.usersUrl}/${id}`);
+  }
+
+  /**
+   * Lists active adventurers with pagination via GET /api/users.
+   */
+  getPaged(pageNumber: number = 1, pageSize: number = 10): Observable<PagedResponse<UserResponse>> {
+    const params = new HttpParams()
+      .set('pageNumber', pageNumber.toString())
+      .set('pageSize', pageSize.toString());
+
+    return this.http.get<PagedResponse<UserResponse>>(this.usersUrl, { params });
+  }
+
+  /**
+   * Updates editable profile fields via PUT /api/users/{id}/profile.
+   */
+  updateProfile(id: string, request: UpdateUserProfileRequest): Observable<UserResponse> {
+    return this.http.put<UserResponse>(`${this.usersUrl}/${id}/profile`, request).pipe(
+      tap((updated) => {
+        if (this._currentUser()?.id === updated.id) {
+          this._currentUser.set(updated);
+          this.syncStoredUser(updated);
+        }
+      }),
     );
   }
+
+  /**
+   * Soft-deletes (deactivates) an adventurer account via DELETE /api/users/{id}.
+   */
+  softDelete(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.usersUrl}/${id}`).pipe(
+      tap(() => {
+        if (this._currentUser()?.id === id) {
+          this.clearSession();
+        }
+      }),
+    );
+  }
+
+  // ===========================================================================
+  // Token & Session Helpers
+  // ===========================================================================
 
   /**
    * Returns the current valid JWT access token or null if missing/expired.

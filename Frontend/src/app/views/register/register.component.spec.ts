@@ -1,10 +1,12 @@
+import { signal } from '@angular/core';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { of } from 'rxjs';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { RegisterComponent } from './register.component';
-import { UserService } from '../../services/user.service';
+import { AuthService } from '../../services/auth.service';
 import { UserResponse } from '../../models/user.models';
 
 const mockUser: UserResponse = {
@@ -28,8 +30,11 @@ const mockUser: UserResponse = {
   updatedAt: '2026-11-27T00:00:00Z',
 };
 
-const mockUserService = {
+const mockAuthService = {
+  isAuthenticated: signal(false).asReadonly(),
+  currentUser: signal<UserResponse | null>(null).asReadonly(),
   register: () => of(mockUser),
+  logout: () => of(void 0),
 };
 
 describe('RegisterComponent', () => {
@@ -42,7 +47,7 @@ describe('RegisterComponent', () => {
         provideRouter([]),
         provideHttpClient(),
         provideHttpClientTesting(),
-        { provide: UserService, useValue: mockUserService },
+        { provide: AuthService, useValue: mockAuthService },
       ],
     }).compileComponents();
   });

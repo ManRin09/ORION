@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, computed, inject, output, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  output,
+  signal,
+} from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { toSignal } from '@angular/core/rxjs-interop';
 import {
@@ -13,7 +20,7 @@ import { RouterLink } from '@angular/router';
 import { startWith } from 'rxjs';
 import { RegisterCharacterPayload, isCipherComplete } from '../../../models/auth.models';
 import { RegisterUserRequest, UserResponse } from '../../../models/user.models';
-import { UserService } from '../../../services/user.service';
+import { AuthService } from '../../../services/auth.service';
 import { PixelIconComponent } from '../../shared/pixel-icon/pixel-icon.component';
 import { RetroButtonComponent } from '../../shared/retro-button/retro-button.component';
 import { CipherRequirementsComponent } from '../cipher-requirements/cipher-requirements.component';
@@ -55,7 +62,7 @@ const spellsMatchValidator: ValidatorFn = (group: AbstractControl): ValidationEr
 })
 export class RegisterCardComponent {
   private readonly fb = inject(FormBuilder);
-  private readonly userService = inject(UserService);
+  private readonly authService = inject(AuthService);
 
   protected readonly showPassword = signal<boolean>(false);
   protected readonly showConfirmPassword = signal<boolean>(false);
@@ -151,13 +158,11 @@ export class RegisterCardComponent {
     this.errorMessage.set(null);
     this.previewBanner.set(null);
 
-    this.userService.register(request).subscribe({
+    this.authService.register(request).subscribe({
       next: (user) => {
         this.isSubmitting.set(false);
         this.registeredUser.set(user);
-        const fullName = user.middleName
-          ? `${user.firstName} ${user.middleName}`
-          : user.firstName;
+        const fullName = user.middleName ? `${user.firstName} ${user.middleName}` : user.firstName;
         this.previewBanner.set(
           `✓ CHARACTER "${fullName.toUpperCase()}" FORGED · LEVEL ${user.currentLevel} READY`,
         );

@@ -110,7 +110,7 @@ El frontend es una aplicación **Angular 22.3** basada en **Standalone Component
 - **`components/landing/`:** `NavbarComponent`, `HeroSectionComponent`, `BattleArenaComponent`, `QuestMapComponent`, `ZoneCardComponent`, `GuildInventoryComponent`, `QuestingComparisonComponent`, `SavePointCtaComponent`, `FooterComponent`.
 - **`components/auth/`:** `LoginCardComponent`, `RegisterCardComponent`, `CipherRequirementsComponent`, `FamiliarGuideCardComponent`.
 - **`components/shared/`:** Primitivas reutilizables `PixelIconComponent` y `RetroButtonComponent`.
-- **`services/`, `interceptors/`, `guards/` & `environments/`:** `AuthService` (`/api/auth`) y `UserService` (`/api/users`) consumen `${environment.apiUrl}` (`https://orion-backend-yar4.onrender.com/api` en producción y `http://localhost:5092/api` en desarrollo local); `authInterceptor` adjunta automáticamente `Authorization: Bearer <token>` y limpia sesiones vencidas ante `401`.
+- **`services/`, `interceptors/`, `guards/` & `environments/`:** Un único `AuthService` centraliza `/api/auth` y `/api/users` contra `${environment.apiUrl}` (`https://orion-backend-yar4.onrender.com/api` en producción y `http://localhost:5092/api` en desarrollo local); `authInterceptor` adjunta automáticamente `Authorization: Bearer <token>` y limpia sesiones vencidas ante `401`.
 - **`models/` & `data/`:** Tipado estricto (`auth.models.ts`, `quest-landing.models.ts`, `user.models.ts`) y contenido estructurado (`quest-landing.data.ts`).
 
 ---

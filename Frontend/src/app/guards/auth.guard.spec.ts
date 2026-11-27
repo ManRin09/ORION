@@ -1,7 +1,13 @@
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { ActivatedRouteSnapshot, provideRouter, RouterStateSnapshot, UrlTree } from '@angular/router';
+import {
+  ActivatedRouteSnapshot,
+  provideRouter,
+  RouterStateSnapshot,
+  UrlTree,
+} from '@angular/router';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { AuthService } from '../services/auth.service';
 import { authGuard } from './auth.guard';
 

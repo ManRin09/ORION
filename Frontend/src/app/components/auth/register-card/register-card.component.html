@@ -65,9 +65,7 @@
       >
         <app-pixel-icon name="github" [size]="15" class="text-[#e1e1f7]" />
       </span>
-      <span
-        class="font-display text-[9.5px] sm:text-[11.5px] tracking-[0.05em] text-[#f0bf69]"
-      >
+      <span class="font-display text-[9.5px] sm:text-[11.5px] tracking-[0.05em] text-[#f0bf69]">
         [ GITHUB GUILD : QUICK SPAWN ]
       </span>
       <span class="text-[#879486] text-sm leading-none" aria-hidden="true">→</span>
@@ -263,7 +261,9 @@
             [class.border-[#63de86]]="matchState() === 'matched'"
             [class.border-[#ffb4ab]]="matchState() === 'mismatch' || hasError('confirmPassword')"
             [class.border-[#879486]]="matchState() === 'idle' && !hasError('confirmPassword')"
-            [class.focus-within:border-[#63de86]]="matchState() === 'idle' && !hasError('confirmPassword')"
+            [class.focus-within:border-[#63de86]]="
+              matchState() === 'idle' && !hasError('confirmPassword')
+            "
           >
             <input
               id="reg-confirm-password"

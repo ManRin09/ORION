@@ -6,5 +6,7 @@
   "search.exclude": {
     "**/bin": true,
     "**/obj": true
-  }
+  },
+  "typescript.tsdk": "Frontend/node_modules/typescript/lib",
+  "typescript.enablePromptUseWorkspaceTsdk": true
 }

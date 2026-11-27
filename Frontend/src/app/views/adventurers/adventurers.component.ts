@@ -7,7 +7,7 @@ import { NavbarComponent } from '../../components/landing/navbar/navbar.componen
 import { PixelIconComponent } from '../../components/shared/pixel-icon/pixel-icon.component';
 import { RetroButtonComponent } from '../../components/shared/retro-button/retro-button.component';
 import { UpdateUserProfileRequest, UserResponse } from '../../models/user.models';
-import { UserService } from '../../services/user.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-adventurers',
@@ -24,7 +24,7 @@ import { UserService } from '../../services/user.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AdventurersComponent implements OnInit {
-  private readonly userService = inject(UserService);
+  private readonly authService = inject(AuthService);
   private readonly fb = inject(FormBuilder);
 
   protected readonly adventurers = signal<readonly UserResponse[]>([]);
@@ -58,7 +58,7 @@ export class AdventurersComponent implements OnInit {
     this.isLoading.set(true);
     this.errorMessage.set(null);
 
-    this.userService.getPaged(this.pageNumber(), this.pageSize()).subscribe({
+    this.authService.getPaged(this.pageNumber(), this.pageSize()).subscribe({
       next: (response) => {
         this.isLoading.set(false);
         this.adventurers.set(response.items);
@@ -68,7 +68,9 @@ export class AdventurersComponent implements OnInit {
       error: (err: HttpErrorResponse) => {
         this.isLoading.set(false);
         this.errorMessage.set(
-          err.error?.detail || err.error?.title || 'Unable to retrieve guild roster from Orion API.',
+          err.error?.detail ||
+            err.error?.title ||
+            'Unable to retrieve guild roster from Orion API.',
         );
       },
     });
@@ -76,7 +78,7 @@ export class AdventurersComponent implements OnInit {
 
   protected inspectUser(id: string): void {
     this.isLoading.set(true);
-    this.userService.getById(id).subscribe({
+    this.authService.getById(id).subscribe({
       next: (user) => {
         this.isLoading.set(false);
         this.inspectedUser.set(user);
@@ -129,7 +131,7 @@ export class AdventurersComponent implements OnInit {
     this.isSaving.set(true);
     this.errorMessage.set(null);
 
-    this.userService.updateProfile(user.id, payload).subscribe({
+    this.authService.updateProfile(user.id, payload).subscribe({
       next: (updated) => {
         this.isSaving.set(false);
         this.editingUser.set(null);
@@ -156,7 +158,7 @@ export class AdventurersComponent implements OnInit {
     this.deletingUserId.set(user.id);
     this.errorMessage.set(null);
 
-    this.userService.softDelete(user.id).subscribe({
+    this.authService.softDelete(user.id).subscribe({
       next: () => {
         this.deletingUserId.set(null);
         this.successNotice.set(`Adventurer @${user.username} was deactivated.`);

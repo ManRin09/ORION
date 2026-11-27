@@ -2,6 +2,7 @@ import { HttpClient, provideHttpClient, withInterceptors } from '@angular/common
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { environment } from '../../environments/environment';
 import { AuthService } from '../services/auth.service';
 import { authInterceptor } from './auth.interceptor';

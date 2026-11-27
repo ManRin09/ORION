@@ -16,9 +16,7 @@ import { AuthService } from '../../services/auth.service';
           class="bg-[#181a2a] border-2 border-[#3e4a3e] pixel-shadow-lg max-w-md w-full p-8 text-center space-y-4"
         >
           <app-pixel-icon name="sparkle" [size]="24" class="mx-auto text-[#63de86]" />
-          <h1 class="font-display text-[15px] text-[#f0bf69]">
-            [ RESTORING GUILD SESSION ]
-          </h1>
+          <h1 class="font-display text-[15px] text-[#f0bf69]">[ RESTORING GUILD SESSION ]</h1>
 
           @if (errorMessage(); as error) {
             <p role="alert" class="font-code text-[12px] text-[#ffb4ab]">

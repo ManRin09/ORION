@@ -1,10 +1,12 @@
+import { signal } from '@angular/core';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { of } from 'rxjs';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { AdventurersComponent } from './adventurers.component';
-import { UserService } from '../../services/user.service';
+import { AuthService } from '../../services/auth.service';
 import { PagedResponse, UserResponse } from '../../models/user.models';
 
 const mockUser: UserResponse = {
@@ -36,11 +38,14 @@ const mockPaged: PagedResponse<UserResponse> = {
   totalPages: 1,
 };
 
-const mockUserService = {
+const mockAuthService = {
+  isAuthenticated: signal(false).asReadonly(),
+  currentUser: signal<UserResponse | null>(null).asReadonly(),
   getPaged: () => of(mockPaged),
   getById: () => of(mockUser),
   updateProfile: () => of({ ...mockUser, firstName: 'Arthur II' }),
   softDelete: () => of(void 0),
+  logout: () => of(void 0),
 };
 
 describe('AdventurersComponent', () => {
@@ -53,7 +58,7 @@ describe('AdventurersComponent', () => {
         provideRouter([]),
         provideHttpClient(),
         provideHttpClientTesting(),
-        { provide: UserService, useValue: mockUserService },
+        { provide: AuthService, useValue: mockAuthService },
       ],
     }).compileComponents();
   });
@@ -75,8 +80,8 @@ describe('AdventurersComponent', () => {
     fixture.detectChanges();
     await fixture.whenStable();
 
-    const viewButton = Array.from(fixture.nativeElement.querySelectorAll('button')).find(
-      (b: any) => b.textContent?.includes('[ VIEW ]'),
+    const viewButton = Array.from(fixture.nativeElement.querySelectorAll('button')).find((b: any) =>
+      b.textContent?.includes('[ VIEW ]'),
     ) as HTMLButtonElement;
 
     expect(viewButton).toBeTruthy();

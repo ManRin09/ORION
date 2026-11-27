@@ -1,6 +1,4 @@
-<header
-  class="sticky top-0 z-50 bg-[#181a2a] border-b-2 border-[#3e4a3e] pixel-nav-shadow"
->
+<header class="sticky top-0 z-50 bg-[#181a2a] border-b-2 border-[#3e4a3e] pixel-nav-shadow">
   <div class="max-w-[1280px] mx-auto px-5 sm:px-8 lg:px-10 h-16 flex items-center justify-between">
     <!-- Left: Brand + Primary Navigation -->
     <div class="flex items-center gap-6 lg:gap-7">
@@ -60,7 +58,8 @@
         <span
           class="bg-[#101222] border-2 border-[#63de86] px-3 py-1.5 font-code text-[11px] text-[#63de86]"
         >
-          &#64;{{ currentUser()?.username ?? 'adventurer' }} · LVL {{ currentUser()?.currentLevel ?? 1 }}
+          &#64;{{ currentUser()?.username ?? 'adventurer' }} · LVL
+          {{ currentUser()?.currentLevel ?? 1 }}
         </span>
 
         <button

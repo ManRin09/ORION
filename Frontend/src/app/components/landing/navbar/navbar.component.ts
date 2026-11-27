@@ -39,9 +39,7 @@ export class NavbarComponent {
   );
   protected readonly isAuthRoute = computed(
     () =>
-      this.isLoginRoute() ||
-      this.isAdventurersRoute() ||
-      this.currentUrl().startsWith('/register'),
+      this.isLoginRoute() || this.isAdventurersRoute() || this.currentUrl().startsWith('/register'),
   );
 
   protected selectNav(id: string): void {
