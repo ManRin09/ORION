@@ -28,7 +28,6 @@ Orion/
 │   │   ├── Orion.Application/    # Casos de uso, DTOs, validadores FluentValidation
 │   │   ├── Orion.Infrastructure/ # EF Core, PostgreSQL (Npgsql), migraciones y BCrypt
 │   │   ├── Orion.Api/            # Entrypoint REST, middlewares, OpenAPI/Swagger, CORS, /health
-│   │   ├── Orion.Web/            # Proyecto MVC plantilla incluido en la solución
 │   │   └── Orion.sln             # Solución .NET 10
 │   └── tests/
 │       └── Orion.UnitTests/      # Pruebas unitarias (xUnit + NSubstitute)
@@ -101,7 +100,8 @@ El frontend es una aplicación **Angular 22.3** basada en **Standalone Component
 | :--- | :--- | :--- |
 | `/` | `HomeComponent` | Landing RPG: barra de navegación, héroe interactivo con arena de batalla, mapa de zonas, inventario del gremio, tabla comparativa y CTA Save-Point. |
 | `/login` | `LoginComponent` | Pantalla `[ SLOT 01: LOAD GAME ]` con formulario reactivo (`LoginCardComponent`) y asistente contextual en tiempo real (`FamiliarGuideCardComponent` / Pyxis). |
-| `/register` | `RegisterComponent` | Creación de personaje (`RegisterCardComponent`) con validación en vivo de las 4 runas de contraseña (`CipherRequirementsComponent`) y confirmación de hechizo. |
+| `/register` | `RegisterComponent` | Creación de personaje (`RegisterCardComponent`) conectada a `POST /api/users/register`, con validación en vivo de las 4 runas de contraseña (`CipherRequirementsComponent`). |
+| `/adventurers` | `AdventurersComponent` | Guild Roster: CRUD interactivo de aventureros conectado a `GET`, `PUT` y `DELETE /api/users`. |
 | `**` | Redirección a `/` | Fallback a la página principal. |
 
 ### Organización Modular de UI
@@ -109,8 +109,9 @@ El frontend es una aplicación **Angular 22.3** basada en **Standalone Component
 - **`components/landing/`:** `NavbarComponent`, `HeroSectionComponent`, `BattleArenaComponent`, `QuestMapComponent`, `ZoneCardComponent`, `GuildInventoryComponent`, `QuestingComparisonComponent`, `SavePointCtaComponent`, `FooterComponent`.
 - **`components/auth/`:** `LoginCardComponent`, `RegisterCardComponent`, `CipherRequirementsComponent`, `FamiliarGuideCardComponent`.
 - **`components/shared/`:** Primitivas reutilizables `PixelIconComponent` y `RetroButtonComponent`.
-- **`models/` & `data/`:** Tipado estricto (`auth.models.ts`, `quest-landing.models.ts`) y contenido estructurado (`quest-landing.data.ts`).
-- **Estado de integración Backend ↔ Frontend:** Actualmente las vistas de autenticación emiten eventos y feedback visual local (modo preview). Los directorios `src/app/services/` y `src/app/interceptors/` están preparados para conectar `HttpClient` contra los endpoints de `Orion.Api`.
+- **`services/` & `environments/`:** `UserService` consume `${environment.apiUrl}/users` (`https://orion-backend-yar4.onrender.com/api` en producción y `http://localhost:5092/api` en desarrollo local).
+- **`models/` & `data/`:** Tipado estricto (`auth.models.ts`, `quest-landing.models.ts`, `user.models.ts`) y contenido estructurado (`quest-landing.data.ts`).
+- **Estado de integración Backend ↔ Frontend:** El registro (`/register`) y la gestión de aventureros (`/adventurers`) ya consumen `Orion.Api` mediante `HttpClient`. La pantalla `/login` permanece en modo preview pendiente de integrarse con `AuthController` (`/api/auth/login`).
 
 ---
 

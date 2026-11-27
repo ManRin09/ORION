@@ -18,6 +18,12 @@ export const routes: Routes = [
       import('./views/register/register.component').then((m) => m.RegisterComponent),
   },
   {
+    path: 'adventurers',
+    title: 'Adventurers Roster — ORION 16-Bit Realm',
+    loadComponent: () =>
+      import('./views/adventurers/adventurers.component').then((m) => m.AdventurersComponent),
+  },
+  {
     path: '**',
     redirectTo: '',
   },

@@ -46,6 +46,17 @@
     <!-- Right: Auth + CTA + Adventurer Avatar -->
     <div class="hidden md:flex items-center gap-3.5">
       <a
+        routerLink="/adventurers"
+        [attr.aria-current]="isAdventurersRoute() ? 'page' : null"
+        class="bg-[#1c1e2f] border-2 pixel-shadow-sm px-3.5 py-2 text-[11px] font-pixel tracking-[0.06em] text-[#f0bf69] hover:border-[#f0bf69] hover:bg-[#272939] transition-colors uppercase inline-flex items-center gap-1.5"
+        [class.border-[#f0bf69]]="isAdventurersRoute()"
+        [class.border-[#3e4a3e]]="!isAdventurersRoute()"
+      >
+        <app-pixel-icon name="swords" [size]="13" />
+        <span>ROSTER</span>
+      </a>
+
+      <a
         routerLink="/login"
         [attr.aria-current]="isLoginRoute() ? 'page' : null"
         class="bg-[#1c1e2f] border-2 pixel-shadow-sm px-4 py-2 text-[11px] font-medium tracking-[0.08em] text-[#e1e1f7] hover:border-[#63de86] hover:bg-[#272939] transition-colors uppercase"
@@ -103,7 +114,14 @@
           </a>
         }
       </nav>
-      <div class="pt-3 border-t border-[#2f3142] flex items-center gap-3">
+      <div class="pt-3 border-t border-[#2f3142] flex flex-wrap items-center gap-2">
+        <a
+          routerLink="/adventurers"
+          (click)="mobileMenuOpen.set(false)"
+          class="flex-1 text-center bg-[#1c1e2f] border-2 border-[#f0bf69] px-3 py-2 text-xs text-[#f0bf69] font-pixel"
+        >
+          ROSTER
+        </a>
         <a
           routerLink="/login"
           (click)="mobileMenuOpen.set(false)"

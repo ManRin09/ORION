@@ -333,22 +333,96 @@
 
       <!-- Row 6: Primary CTA -->
       <div class="pt-1">
-        <app-retro-button variant="primary" size="lg" type="submit" [fullWidth]="true">
+        <app-retro-button
+          variant="primary"
+          size="lg"
+          type="submit"
+          [fullWidth]="true"
+          [disabled]="isSubmitting()"
+        >
           <span class="text-[11px] leading-none" aria-hidden="true">▸</span>
           <span class="font-display text-[9.5px] sm:text-[12.5px] tracking-[0.04em]">
-            [ FORGE CHARACTER &amp; START LEVEL 1 ]
+            @if (isSubmitting()) {
+              [ FORGING IN ORION REALM... ]
+            } @else {
+              [ FORGE CHARACTER &amp; START LEVEL 1 ]
+            }
           </span>
         </app-retro-button>
       </div>
 
-      @if (previewBanner(); as banner) {
-        <p
+      @if (errorMessage(); as error) {
+        <div
+          role="alert"
+          class="bg-[#1c1e2f] border-2 border-[#ffb4ab] p-3.5 pixel-shadow-sm flex items-start gap-2.5 text-[#ffb4ab]"
+        >
+          <app-pixel-icon name="lock" [size]="15" class="shrink-0 mt-0.5 text-[#ffb4ab]" />
+          <div class="space-y-1">
+            <p class="font-pixel text-[10.5px] tracking-[0.04em] font-bold">
+              [ RUNIC FORGE REJECTED BY ORION API ]
+            </p>
+            <p class="font-code text-[11.5px] leading-relaxed text-[#e1e1f7]">
+              {{ error }}
+            </p>
+          </div>
+        </div>
+      }
+
+      @if (registeredUser(); as user) {
+        <div
           role="status"
           aria-live="polite"
-          class="bg-[#101222] border border-[#63de86] px-4 py-2.5 text-center font-pixel text-[10.5px] tracking-[0.05em] text-[#63de86]"
+          class="bg-[#101222] border-2 border-[#63de86] p-4 pixel-shadow space-y-3"
         >
-          {{ banner }}
-        </p>
+          <div class="flex items-center gap-2 text-[#63de86]">
+            <app-pixel-icon name="sparkle" [size]="16" />
+            <span class="font-pixel text-[11px] tracking-[0.06em] font-bold">
+              [ REALM REGISTRATION SUCCESSFUL · 201 CREATED ]
+            </span>
+          </div>
+
+          <div
+            class="bg-[#181a2a] border border-[#3e4a3e] p-3 grid grid-cols-2 sm:grid-cols-4 gap-2 text-center font-code text-[11px]"
+          >
+            <div>
+              <span class="text-[#8a8ba0] block text-[9px] font-pixel">ADVENTURER</span>
+              <span class="text-[#f0bf69] font-bold truncate block">&#64;{{ user.username }}</span>
+            </div>
+            <div>
+              <span class="text-[#8a8ba0] block text-[9px] font-pixel">LEVEL</span>
+              <span class="text-[#63de86] font-bold block">{{ user.currentLevel }}</span>
+            </div>
+            <div>
+              <span class="text-[#8a8ba0] block text-[9px] font-pixel">TOTAL XP</span>
+              <span class="text-[#99cbff] font-bold block">{{ user.totalXp }} XP</span>
+            </div>
+            <div>
+              <span class="text-[#8a8ba0] block text-[9px] font-pixel">GUILD TIER</span>
+              <span class="text-[#e1e1f7] font-bold block">{{ user.planType }}</span>
+            </div>
+          </div>
+
+          @if (previewBanner(); as banner) {
+            <p class="font-pixel text-[10px] tracking-[0.04em] text-[#63de86] text-center">
+              {{ banner }}
+            </p>
+          }
+
+          <div class="pt-1 flex flex-col sm:flex-row gap-2">
+            <a
+              routerLink="/adventurers"
+              class="flex-1 text-center bg-[#272939] border border-[#63de86] hover:bg-[#2f3246] text-[#63de86] font-pixel text-[10px] py-2 px-3 transition-colors"
+            >
+              [ VIEW IN GUILD ROSTER → ]
+            </a>
+            <a
+              routerLink="/login"
+              class="flex-1 text-center bg-[#38b764] hover:bg-[#44c470] text-[#00411c] font-pixel font-bold text-[10px] py-2 px-3 border border-black transition-colors"
+            >
+              [ RESUME ADVENTURE / SIGN IN ]
+            </a>
+          </div>
+        </div>
       }
     </form>
 

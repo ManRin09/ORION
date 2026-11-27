@@ -30,8 +30,14 @@ export class NavbarComponent {
   );
 
   protected readonly isLoginRoute = computed(() => this.currentUrl().startsWith('/login'));
+  protected readonly isAdventurersRoute = computed(() =>
+    this.currentUrl().startsWith('/adventurers'),
+  );
   protected readonly isAuthRoute = computed(
-    () => this.isLoginRoute() || this.currentUrl().startsWith('/register'),
+    () =>
+      this.isLoginRoute() ||
+      this.isAdventurersRoute() ||
+      this.currentUrl().startsWith('/register'),
   );
 
   protected selectNav(id: string): void {

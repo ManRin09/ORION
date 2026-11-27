@@ -1,12 +1,43 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { of } from 'rxjs';
 import { RegisterComponent } from './register.component';
+import { UserService } from '../../services/user.service';
+import { UserResponse } from '../../models/user.models';
+
+const mockUser: UserResponse = {
+  id: '00000000-0000-0000-0000-000000000001',
+  firstName: 'Arthur',
+  middleName: null,
+  email: 'arthur@orion.realm',
+  username: 'arthur',
+  avatarUrl: null,
+  authProvider: 'Local',
+  role: 'User',
+  planType: 'Free',
+  totalXp: 0,
+  currentLevel: 1,
+  currentStreak: 0,
+  longestStreak: 0,
+  gems: 0,
+  isActive: true,
+  acceptedTermsAt: '2026-11-27T00:00:00Z',
+  createdAt: '2026-11-27T00:00:00Z',
+  updatedAt: '2026-11-27T00:00:00Z',
+};
+
+const mockUserService = {
+  register: () => of(mockUser),
+};
 
 describe('RegisterComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [RegisterComponent],
-      providers: [provideRouter([])],
+      providers: [
+        provideRouter([]),
+        { provide: UserService, useValue: mockUserService },
+      ],
     }).compileComponents();
   });
 

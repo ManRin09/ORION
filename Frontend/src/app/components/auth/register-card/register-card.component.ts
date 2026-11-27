@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, output, signal } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { toSignal } from '@angular/core/rxjs-interop';
 import {
   AbstractControl,
@@ -11,6 +12,8 @@ import {
 import { RouterLink } from '@angular/router';
 import { startWith } from 'rxjs';
 import { RegisterCharacterPayload, isCipherComplete } from '../../../models/auth.models';
+import { RegisterUserRequest, UserResponse } from '../../../models/user.models';
+import { UserService } from '../../../services/user.service';
 import { PixelIconComponent } from '../../shared/pixel-icon/pixel-icon.component';
 import { RetroButtonComponent } from '../../shared/retro-button/retro-button.component';
 import { CipherRequirementsComponent } from '../cipher-requirements/cipher-requirements.component';
@@ -52,10 +55,14 @@ const spellsMatchValidator: ValidatorFn = (group: AbstractControl): ValidationEr
 })
 export class RegisterCardComponent {
   private readonly fb = inject(FormBuilder);
+  private readonly userService = inject(UserService);
 
   protected readonly showPassword = signal<boolean>(false);
   protected readonly showConfirmPassword = signal<boolean>(false);
   protected readonly submitted = signal<boolean>(false);
+  protected readonly isSubmitting = signal<boolean>(false);
+  protected readonly errorMessage = signal<string | null>(null);
+  protected readonly registeredUser = signal<UserResponse | null>(null);
   protected readonly previewBanner = signal<string | null>(null);
 
   protected readonly registerForm = this.fb.nonNullable.group(
@@ -117,6 +124,7 @@ export class RegisterCardComponent {
     if (this.registerForm.invalid) {
       this.registerForm.markAllAsTouched();
       this.previewBanner.set(null);
+      this.errorMessage.set(null);
       return;
     }
 
@@ -129,14 +137,43 @@ export class RegisterCardComponent {
       acceptedTerms: raw.acceptedTerms,
     };
 
-    const fullName = payload.middleTitle
-      ? `${payload.firstName} ${payload.middleTitle}`
-      : payload.firstName;
+    const request: RegisterUserRequest = {
+      firstName: payload.firstName,
+      middleName: payload.middleTitle ? payload.middleTitle : null,
+      email: payload.email,
+      username: null,
+      password: payload.password,
+      confirmPassword: payload.password,
+      acceptTerms: payload.acceptedTerms,
+    };
 
-    this.previewBanner.set(
-      `✓ CHARACTER "${fullName.toUpperCase()}" FORGED · LEVEL 1 READY (UI PREVIEW)`,
-    );
-    this.characterForged.emit(payload);
+    this.isSubmitting.set(true);
+    this.errorMessage.set(null);
+    this.previewBanner.set(null);
+
+    this.userService.register(request).subscribe({
+      next: (user) => {
+        this.isSubmitting.set(false);
+        this.registeredUser.set(user);
+        const fullName = user.middleName
+          ? `${user.firstName} ${user.middleName}`
+          : user.firstName;
+        this.previewBanner.set(
+          `✓ CHARACTER "${fullName.toUpperCase()}" FORGED · LEVEL ${user.currentLevel} READY`,
+        );
+        this.characterForged.emit(payload);
+      },
+      error: (err: HttpErrorResponse) => {
+        this.isSubmitting.set(false);
+        const detail =
+          err.error?.detail ||
+          err.error?.title ||
+          (err.status === 0
+            ? 'Cannot connect to Orion API backend. Check network or server status.'
+            : 'Error forging character. Please check your runes and try again.');
+        this.errorMessage.set(detail);
+      },
+    });
   }
 
   protected hasError(
