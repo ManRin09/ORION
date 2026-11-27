@@ -43,8 +43,35 @@ public sealed class JwtTokenServiceTests
         Assert.Contains("Orion.Frontend", parsed.Audiences);
         Assert.Equal(user.Id.ToString(), parsed.Subject);
         Assert.Contains(parsed.Claims, c => c.Type == JwtRegisteredClaimNames.Email && c.Value == user.Email);
+        Assert.Contains(parsed.Claims, c => c.Type == JwtRegisteredClaimNames.Name && c.Value == "Arthur Pendragon");
         Assert.Contains(parsed.Claims, c => c.Type == JwtRegisteredClaimNames.UniqueName && c.Value == user.Username);
+        Assert.Contains(parsed.Claims, c => c.Type == "role" && c.Value == "User");
         Assert.Contains(parsed.Claims, c => c.Type == ClaimTypes.Role && c.Value == "User");
+    }
+
+    [Fact]
+    public void GenerateAccessToken_WithRenderSecretKeyAndExpirationMinutes_UsesConfiguredSettings()
+    {
+        var options = Options.Create(new JwtSettings
+        {
+            Issuer = "Orion.Api",
+            Audience = "Orion.Frontend",
+            SecretKey = "render-production-secret-key-at-least-32-bytes!",
+            ExpirationMinutes = 45
+        });
+        var keyProvider = new JwtSigningKeyProvider(options, NullLogger<JwtSigningKeyProvider>.Instance);
+        var service = new JwtTokenService(options, keyProvider);
+        var user = CreateTestUser();
+
+        var before = DateTime.UtcNow;
+        var (token, expiresAtUtc) = service.GenerateAccessToken(user, rememberTerminal: false);
+
+        Assert.InRange(expiresAtUtc, before.AddMinutes(44), DateTime.UtcNow.AddMinutes(46));
+
+        var parsed = new JwtSecurityTokenHandler().ReadJwtToken(token);
+        Assert.Equal(user.Id.ToString(), parsed.Subject);
+        Assert.Contains(parsed.Claims, c => c.Type == JwtRegisteredClaimNames.Name && c.Value == "Arthur Pendragon");
+        Assert.Contains(parsed.Claims, c => c.Type == "role" && c.Value == "User");
     }
 
     [Fact]

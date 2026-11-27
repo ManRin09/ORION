@@ -75,14 +75,16 @@ Este archivo define la ventana de contexto técnica para cualquier agente de IA 
      - `UserNotFoundException` → `404 Not Found`
      - `EmailAlreadyExistsException` / `UsernameAlreadyExistsException` / `DbUpdateException` con `PostgresErrorCodes.UniqueViolation` → `409 Conflict`
      - Excepciones no controladas → `500 Internal Server Error` (solo expone `exception.Message` en `Development`).
-4. **Seguridad y Secretos:**
+4. **Seguridad, JWT y Secretos:**
    - Hashing de contraseñas con `BcryptPasswordHasher` (`BCrypt.Net.BCrypt.EnhancedHashPassword` con `WorkFactor = 12`).
-   - **Nunca** incluir ni commitear `appsettings.Development.json`, `.env` o credenciales reales de Neon. Están excluidos en `.gitignore`, `Api/.gitignore` y `Api/.dockerignore`.
+   - JWT configurado vía `IOptions<JwtSettings>` (`Api/src/Orion.Infrastructure/Security/JwtSettings.cs`): usa `Jwt__SecretKey` (>= 32 bytes), `Jwt__Issuer`, `Jwt__Audience` y `Jwt__ExpirationMinutes` en Render (con fallback retrocompatible a `Jwt__Key` y `Jwt__AccessTokenExpirationMinutes`); emite claims `sub`, `email`, `name`, `unique_name`, `role` (`ClaimTypes.Role` + `"role"`) y `jti`.
+   - GitHub OAuth configurado vía `IOptions<GitHubOAuthSettings>` (`GitHubOAuth__ClientId`, `GitHubOAuth__ClientSecret`, `GitHubOAuth__CallbackUrl`, `GitHubOAuth__FrontendRedirectUrl`), dejando placeholders vacíos en `appsettings.json`.
+   - **Nunca** incluir ni commitear secrets reales en `appsettings.json`, `appsettings.Development.json` ni `.env`. Están excluidos en `.gitignore`, `Api/.gitignore` y `Api/.dockerignore`.
    - `AddInfrastructure` lanza `InvalidOperationException` al arranque si `ConnectionStrings:DefaultConnection` está vacía.
 5. **Compatibilidad con Render (Contenedor):**
    - No ejecutar `app.UseHttpsRedirection()` fuera de `app.Environment.IsDevelopment()` (Render termina TLS en su proxy externo y envía HTTP al puerto `10000` o `$PORT`).
    - Mantener `GET /health` ligero (`200 OK`) sin consultar la base de datos en cada probe.
-   - Mantener soporte dinámico de `AllowedOrigins` (arreglo o lista separada por `,`/`;`) junto con `http://localhost:4200` y `https://localhost:4200`, y Swagger condicional (`Development` o `ENABLE_SWAGGER=true`).
+   - Mantener soporte dinámico de `AllowedOrigins` (arreglo o lista separada por `,`/`;`, p. ej. `https://orion-1frh.onrender.com`) junto con `http://localhost:4200` y `https://localhost:4200`, y Swagger condicional (`Development` o `ENABLE_SWAGGER=true`) con esquema OpenAPI **Bearer JWT**.
 
 ### Reglas del Frontend (Angular 22 + Tailwind v4)
 1. **Estilo de componentes:**
