@@ -1,29 +1,187 @@
-<footer class="bg-[#0b0d1c]">
+<footer
+  class="bg-[#0b0d1c] border-t-2 border-[#3e4a3e] text-[#bdcabb]"
+  role="contentinfo"
+  aria-label="Orion platform footer"
+>
   <div class="max-w-[1280px] mx-auto px-5 sm:px-8 lg:px-10">
-    <!-- Top Right Utility Links -->
-    <nav
-      aria-label="Footer navigation"
-      class="py-7 flex flex-wrap justify-start sm:justify-end items-center gap-x-7 gap-y-3"
-    >
-      @for (link of links; track link.label) {
-        <a
-          routerLink="/"
-          [fragment]="link.fragment"
-          class="text-[11px] tracking-[0.08em] text-[#bdcabb] hover:text-[#63de86] uppercase transition-colors"
-        >
-          {{ link.label }}
-        </a>
-      }
-    </nav>
+    <!-- Main Multi-Column Grid -->
+    <div class="py-12 lg:py-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-8">
+      <!-- Brand, Value Proposition, Live Status & Social Channels (5 cols) -->
+      <div class="lg:col-span-5 space-y-5">
+        <div class="flex items-center justify-between sm:justify-start gap-4">
+          <a
+            routerLink="/"
+            (click)="scrollToTop()"
+            class="inline-flex items-center gap-3 group"
+            aria-label="Orion 16-Bit Realm Home"
+          >
+            <span
+              class="w-9 h-9 bg-[#1c1e2f] border-2 border-[#3e4a3e] group-hover:border-[#f0bf69] pixel-shadow-sm flex items-center justify-center transition-colors"
+            >
+              <app-pixel-icon name="sparkle" [size]="18" />
+            </span>
+            <div class="flex flex-col">
+              <span
+                class="font-pixel font-bold text-[20px] tracking-[0.14em] text-[#63de86] leading-none"
+              >
+                ORION
+              </span>
+              <span class="font-pixel text-[9px] tracking-[0.14em] text-[#f0bf69] mt-1">
+                16-BIT CODING REALM
+              </span>
+            </div>
+          </a>
 
-    <!-- Bottom Legal & Arcade Tagline -->
+          <!-- Operational Status Badge -->
+          <span
+            class="inline-flex items-center gap-2 bg-[#101222] border border-[#3e4a3e] px-2.5 py-1 text-[10px] font-pixel tracking-[0.06em] text-[#63de86]"
+            aria-label="System operational status: All realm servers online"
+          >
+            <span class="w-2 h-2 bg-[#63de86] inline-block animate-pulse" aria-hidden="true"></span>
+            <span>REALM ONLINE · &lt;50MS</span>
+          </span>
+        </div>
+
+        <p class="text-[12.5px] leading-relaxed text-[#bdcabb] max-w-md">
+          Master software engineering through 5-minute interactive RPG quests. Compile code in an
+          isolated WebAssembly arena, debug with Socratic AI guidance from Pyxis, and build daily
+          coding streaks without setup friction.
+        </p>
+
+        <!-- Social & Guild Links -->
+        <div class="pt-1 flex flex-wrap items-center gap-2.5">
+          <a
+            href="https://github.com/ManRin09/ORION"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Explore the Orion repository on GitHub"
+            class="inline-flex items-center gap-2 bg-[#1c1e2f] border-2 border-[#3e4a3e] hover:border-[#63de86] hover:bg-[#272939] text-[#e1e1f7] hover:text-[#63de86] pixel-shadow-sm px-3 py-1.5 text-[11px] font-pixel tracking-[0.06em] transition-colors"
+          >
+            <app-pixel-icon name="github" [size]="14" />
+            <span>GITHUB GUILD</span>
+          </a>
+
+          <a
+            href="mailto:juanjosemn160@gmail.com"
+            aria-label="Contact the Orion Guild Archivist via email"
+            class="inline-flex items-center gap-2 bg-[#1c1e2f] border-2 border-[#3e4a3e] hover:border-[#f0bf69] hover:bg-[#272939] text-[#e1e1f7] hover:text-[#f0bf69] pixel-shadow-sm px-3 py-1.5 text-[11px] font-pixel tracking-[0.06em] transition-colors"
+          >
+            <app-pixel-icon name="mail" [size]="14" />
+            <span>CONTACT ARCHIVIST</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Structured Navigation Columns (7 cols) -->
+      <div class="lg:col-span-7 grid grid-cols-1 sm:grid-cols-3 gap-8">
+        @for (column of columns; track column.id) {
+          <nav [attr.aria-label]="column.title" class="space-y-3.5">
+            <h2
+              class="font-pixel text-[11px] font-bold tracking-[0.12em] text-[#f0bf69] uppercase border-b border-[#2f3142] pb-2"
+            >
+              {{ column.title }}
+            </h2>
+
+            <ul class="space-y-2.5">
+              @for (item of column.links; track item.label) {
+                <li>
+                  @if (item.externalUrl; as extUrl) {
+                    <a
+                      [href]="extUrl"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="group inline-flex items-center gap-2 text-[12px] text-[#bdcabb] hover:text-[#63de86] transition-colors"
+                    >
+                      <span
+                        class="text-[#3e4a3e] group-hover:text-[#63de86] font-pixel text-[10px]"
+                        aria-hidden="true"
+                      >
+                        ▸
+                      </span>
+                      <span>{{ item.label }}</span>
+                    </a>
+                  } @else {
+                    <a
+                      [routerLink]="item.route ?? '/'"
+                      [fragment]="item.fragment"
+                      class="group inline-flex items-center flex-wrap gap-2 text-[12px] text-[#bdcabb] hover:text-[#63de86] transition-colors"
+                    >
+                      <span
+                        class="text-[#3e4a3e] group-hover:text-[#63de86] font-pixel text-[10px]"
+                        aria-hidden="true"
+                      >
+                        ▸
+                      </span>
+                      <span>{{ item.label }}</span>
+                      @if (item.badge; as badgeText) {
+                        <span
+                          class="bg-[#1c1e2f] border border-[#3e4a3e] px-1.5 py-0.5 font-pixel text-[9px] tracking-[0.06em] text-[#99cbff]"
+                        >
+                          {{ badgeText }}
+                        </span>
+                      }
+                    </a>
+                  }
+                </li>
+              }
+            </ul>
+          </nav>
+        }
+      </div>
+    </div>
+
+    <!-- Middle Strip: Quick Jump Anchor Links + Back to Top -->
     <div
-      class="border-t border-[#2f3142] py-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
+      class="border-t border-[#2f3142] py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
     >
-      <p class="text-[10.5px] tracking-[0.06em] text-[#8a8ba0]">
-        © 2024 ORION 16-BIT REALM. ALL RIGHTS RESERVED. CODE YOUR DESTINY.
-      </p>
-      <p class="font-pixel text-[11px] tracking-[0.12em] text-[#66687a]">
+      <nav
+        aria-label="Quick section jump links"
+        class="flex flex-wrap items-center gap-x-6 gap-y-2"
+      >
+        @for (link of quickLinks; track link.label) {
+          <a
+            routerLink="/"
+            [fragment]="link.fragment"
+            class="text-[10.5px] font-pixel tracking-[0.08em] text-[#8a8ba0] hover:text-[#63de86] uppercase transition-colors"
+          >
+            [ {{ link.label }} ]
+          </a>
+        }
+      </nav>
+
+      <button
+        type="button"
+        (click)="scrollToTop()"
+        aria-label="Scroll back to top of page"
+        class="bg-[#1c1e2f] border border-[#3e4a3e] hover:border-[#63de86] hover:text-[#63de86] text-[#bdcabb] px-3 py-1.5 font-pixel text-[10px] tracking-[0.08em] uppercase cursor-pointer transition-colors"
+      >
+        [ ↑ BACK TO TOP ]
+      </button>
+    </div>
+
+    <!-- Bottom Legal, Compliance & Arcade Tagline Bar -->
+    <div
+      class="border-t border-[#2f3142] py-6 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4"
+    >
+      <div class="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6">
+        <p class="text-[11px] tracking-[0.05em] text-[#8a8ba0]">
+          © {{ currentYear }} ORION 16-BIT REALM. ALL RIGHTS RESERVED. CODE YOUR DESTINY.
+        </p>
+
+        <nav aria-label="Legal and compliance navigation" class="flex flex-wrap items-center gap-4">
+          @for (legal of legalLinks; track legal.label) {
+            <a
+              [routerLink]="legal.route ?? '/'"
+              [fragment]="legal.fragment"
+              class="text-[11px] text-[#8a8ba0] hover:text-[#e1e1f7] underline-offset-4 hover:underline transition-colors"
+            >
+              {{ legal.label }}
+            </a>
+          }
+        </nav>
+      </div>
+
+      <p class="font-pixel text-[11px] tracking-[0.12em] text-[#63de86]/80">
         INSERT COIN TO CONTINUE
       </p>
     </div>
