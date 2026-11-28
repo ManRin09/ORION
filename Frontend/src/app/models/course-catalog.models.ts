@@ -4,7 +4,7 @@ export type CourseAccent = 'green' | 'blue' | 'purple' | 'cyan' | 'red';
 
 export type CourseEmblemKind = 'python' | 'web' | 'gate';
 
-export type DashboardNavTab = 'cursos' | 'market' | 'perfil';
+export type DashboardNavTab = 'cursos' | 'market' | 'perfil' | 'admin';
 
 export interface CourseDefinition {
   readonly id: string;

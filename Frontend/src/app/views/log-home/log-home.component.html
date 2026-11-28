@@ -12,6 +12,7 @@
         [activeTab]="activeTab()"
         [collapsed]="sidebarCollapsed()"
         [loggingOut]="loggingOut()"
+        [isAdmin]="isAdmin()"
         (collapseToggled)="toggleDesktopCollapse()"
         (tabSelected)="selectTab($event)"
         (logoutRequested)="handleLogout()"
@@ -26,6 +27,7 @@
             [activeTab]="activeTab()"
             [collapsed]="false"
             [loggingOut]="loggingOut()"
+            [isAdmin]="isAdmin()"
             (collapseToggled)="closeMobileSidebar()"
             (tabSelected)="selectTab($event)"
             (logoutRequested)="handleLogout()"
@@ -202,6 +204,13 @@
 
               <div class="flex flex-wrap items-center gap-2.5">
                 @if (isAdmin()) {
+                  <button
+                    type="button"
+                    (click)="selectTab('admin')"
+                    class="bg-[#181a2a] border border-[#f0bf69] hover:bg-[#272939] px-3.5 py-2 font-pixel text-[10px] text-[#f0bf69] cursor-pointer transition-colors"
+                  >
+                    [ ADMIN PANEL · USERS &amp; PROGRESS ]
+                  </button>
                   <a
                     routerLink="/adventurers"
                     class="bg-[#181a2a] border border-[#3e4a3e] hover:border-[#63de86] px-3.5 py-2 font-pixel text-[10px] text-[#63de86] transition-colors"
@@ -292,6 +301,388 @@
                 <p class="font-pixel text-[11px] text-[#8a8ba0]">
                   LOADING ADVENTURER ARCHIVE FROM ORION API...
                 </p>
+              </div>
+            }
+          </section>
+        } @else if (activeTab() === 'admin' && isAdmin()) {
+          <!-- Real Production Admin Panel: Registered Users, Telemetry & Per-Module Progress -->
+          <section aria-labelledby="admin-panel-heading" class="space-y-6">
+            <div
+              class="border-b border-[#2f3142] pb-3 flex flex-wrap items-center justify-between gap-3"
+            >
+              <div class="space-y-1">
+                <div class="flex items-center gap-2">
+                  <app-pixel-icon name="shield" [size]="18" class="text-[#f0bf69]" />
+                  <h1
+                    id="admin-panel-heading"
+                    class="font-display text-[15px] sm:text-[18px] tracking-[0.06em] text-white"
+                  >
+                    [ ADMIN PANEL · USERS &amp; PROGRESS ]
+                  </h1>
+                </div>
+                <p class="font-code text-[11.5px] text-[#bdcabb]">
+                  Live database telemetry connected to
+                  <span class="text-[#63de86]">GET /api/analytics/admin/summary</span> and
+                  <span class="text-[#f0bf69]">/api/users</span>.
+                </p>
+              </div>
+
+              <div class="flex flex-wrap items-center gap-2.5">
+                <button
+                  type="button"
+                  (click)="loadAdminSummary()"
+                  [disabled]="adminLoading()"
+                  class="bg-[#181a2a] border border-[#63de86] hover:bg-[#272939] disabled:opacity-50 px-3.5 py-2 font-pixel text-[10px] text-[#63de86] cursor-pointer transition-colors"
+                >
+                  {{ adminLoading() ? '[ SYNCING DB... ]' : '[ ⟳ REFRESH LIVE DATA ]' }}
+                </button>
+                <a
+                  routerLink="/adventurers"
+                  class="bg-[#272939] border border-[#f0bf69] hover:bg-[#32354a] px-3.5 py-2 font-pixel text-[10px] text-[#f0bf69] transition-colors"
+                >
+                  [ OPEN FULL CRUD ROSTER ]
+                </a>
+              </div>
+            </div>
+
+            @if (adminError(); as err) {
+              <div
+                role="alert"
+                class="bg-[#1c1e2f] border-2 border-[#ffb4ab] p-4 flex items-center justify-between gap-3 text-[#ffb4ab]"
+              >
+                <p class="font-code text-[12px]">{{ err }}</p>
+                <button
+                  type="button"
+                  (click)="adminError.set(null)"
+                  class="font-code font-bold text-sm cursor-pointer"
+                >
+                  ✕
+                </button>
+              </div>
+            }
+
+            @if (adminNotice(); as notice) {
+              <div
+                role="status"
+                class="bg-[#10261a] border-2 border-[#63de86] p-3.5 flex items-center justify-between gap-3 text-[#63de86]"
+              >
+                <p class="font-pixel text-[10.5px]">{{ notice }}</p>
+                <button
+                  type="button"
+                  (click)="adminNotice.set(null)"
+                  class="font-code font-bold text-sm cursor-pointer"
+                >
+                  ✕
+                </button>
+              </div>
+            }
+
+            @if (adminLoading() && !adminSummary()) {
+              <div class="bg-[#181a2a] border-2 border-[#2f3142] p-10 text-center space-y-2">
+                <p class="font-pixel text-[11px] text-[#63de86] animate-pulse">
+                  QUERYING NEON POSTGRESQL ANALYTICS &amp; ADVENTURER PROGRESS...
+                </p>
+              </div>
+            } @else if (adminSummary(); as summary) {
+              <!-- Top Real-Time KPI Cards -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 font-code">
+                <div class="bg-[#181a2a] border-2 border-[#3e4a3e] pixel-shadow-sm p-4">
+                  <span class="block font-pixel text-[9px] text-[#8a8ba0]">
+                    REGISTERED ADVENTURERS
+                  </span>
+                  <span class="block text-[24px] font-bold text-[#63de86] mt-1">
+                    {{ summary.totalRegisteredUsers }}
+                  </span>
+                  <span class="block text-[10.5px] text-[#bdcabb] mt-0.5">
+                    Active accounts in PostgreSQL
+                  </span>
+                </div>
+
+                <div class="bg-[#181a2a] border-2 border-[#3e4a3e] pixel-shadow-sm p-4">
+                  <span class="block font-pixel text-[9px] text-[#8a8ba0]">
+                    UNIQUE VISITORS (30 DAYS)
+                  </span>
+                  <span class="block text-[24px] font-bold text-[#f0bf69] mt-1">
+                    {{ summary.uniqueVisitorsLast30Days }}
+                  </span>
+                  <span class="block text-[10.5px] text-[#bdcabb] mt-0.5">
+                    Distinct VisitorId in 30d window
+                  </span>
+                </div>
+
+                <div class="bg-[#181a2a] border-2 border-[#3e4a3e] pixel-shadow-sm p-4">
+                  <span class="block font-pixel text-[9px] text-[#8a8ba0]">
+                    ACTIVE VISITORS (24 HOURS)
+                  </span>
+                  <span class="block text-[24px] font-bold text-[#99cbff] mt-1">
+                    {{ summary.activeVisitorsLast24Hours }}
+                  </span>
+                  <span class="block text-[10.5px] text-[#bdcabb] mt-0.5">
+                    Distinct VisitorId in last 24h
+                  </span>
+                </div>
+
+                <div class="bg-[#181a2a] border-2 border-[#3e4a3e] pixel-shadow-sm p-4">
+                  <span class="block font-pixel text-[9px] text-[#8a8ba0]">
+                    CORE LEARNING MODULES
+                  </span>
+                  <span class="block text-[24px] font-bold text-white mt-1">
+                    {{ summary.modules.length }}
+                  </span>
+                  <span class="block text-[10.5px] text-[#bdcabb] mt-0.5">
+                    Python · HTML/CSS · JS · Postgres
+                  </span>
+                </div>
+              </div>
+
+              <!-- 4-Module Curriculum Funnel Metrics -->
+              <div class="bg-[#181a2a] border-2 border-[#3e4a3e] pixel-shadow p-5 space-y-4">
+                <div class="border-b border-[#2f3142] pb-2.5 flex items-center justify-between">
+                  <h2 class="font-display text-[12px] tracking-[0.06em] text-[#f0bf69]">
+                    [ 01 // 4-MODULE CURRICULUM PROGRESSION FUNNEL ]
+                  </h2>
+                  <span class="font-pixel text-[9px] text-[#8a8ba0]">
+                    TABLE: learning_modules × analytics_events
+                  </span>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  @for (mod of summary.modules; track mod.slug) {
+                    <div class="bg-[#101222] border border-[#2f3142] p-3.5 space-y-2.5">
+                      <div class="flex items-center justify-between gap-2">
+                        <span class="font-pixel text-[9px] text-[#f0bf69]">
+                          MODULE 0{{ mod.orderIndex }}
+                        </span>
+                        <span
+                          class="bg-[#181a2a] border border-[#3e4a3e] px-1.5 py-0.5 font-code text-[10px] text-[#99cbff]"
+                        >
+                          {{ mod.slug }}
+                        </span>
+                      </div>
+
+                      <h3 class="font-display text-[11px] text-white">{{ mod.title }}</h3>
+
+                      <div class="grid grid-cols-2 gap-2 font-code text-[11px] pt-1">
+                        <div class="bg-[#181a2a] p-2 border border-[#2f3142]">
+                          <span class="block text-[8.5px] text-[#8a8ba0] font-pixel">STARTS</span>
+                          <span class="font-bold text-[#63de86]">{{ mod.uniqueStarts }}</span>
+                        </div>
+                        <div class="bg-[#181a2a] p-2 border border-[#2f3142]">
+                          <span class="block text-[8.5px] text-[#8a8ba0] font-pixel">
+                            COMPLETED
+                          </span>
+                          <span class="font-bold text-[#99cbff]">{{ mod.uniqueCompletions }}</span>
+                        </div>
+                      </div>
+
+                      <div class="space-y-1">
+                        <div class="flex justify-between font-pixel text-[9px]">
+                          <span class="text-[#8a8ba0]">COMPLETION RATE</span>
+                          <span class="text-[#63de86]">{{ mod.completionRatePercent }}%</span>
+                        </div>
+                        <div class="h-2 bg-[#0b0d1c] border border-[#2f3142] overflow-hidden">
+                          <div
+                            class="h-full bg-[#38b764]"
+                            [style.width.%]="mod.completionRatePercent"
+                          ></div>
+                        </div>
+                      </div>
+                    </div>
+                  }
+                </div>
+              </div>
+
+              <!-- Registered Adventurers & Individual Progress Table -->
+              <div class="bg-[#181a2a] border-2 border-[#3e4a3e] pixel-shadow p-5 space-y-4">
+                <div
+                  class="border-b border-[#2f3142] pb-2.5 flex flex-wrap items-center justify-between gap-2"
+                >
+                  <h2 class="font-display text-[12px] tracking-[0.06em] text-[#63de86]">
+                    [ 02 // REGISTERED ADVENTURERS &amp; REAL-TIME PROGRESS ]
+                  </h2>
+                  <span class="font-pixel text-[9.5px] text-[#bdcabb]">
+                    SHOWING {{ summary.usersProgress.length }} ACTIVE ADVENTURERS
+                  </span>
+                </div>
+
+                @if (summary.usersProgress.length === 0) {
+                  <div class="bg-[#101222] border border-[#2f3142] p-8 text-center">
+                    <p class="font-code text-[12px] text-[#8a8ba0]">
+                      No registered adventurers found in database.
+                    </p>
+                  </div>
+                } @else {
+                  <div class="space-y-3.5">
+                    @for (u of summary.usersProgress; track u.id) {
+                      <article
+                        class="bg-[#101222] border border-[#2f3142] hover:border-[#3e4a3e] p-4 space-y-3.5 transition-colors"
+                      >
+                        <div
+                          class="flex flex-col lg:flex-row lg:items-center justify-between gap-3 border-b border-[#2f3142] pb-3"
+                        >
+                          <!-- User Identity & Role Badge -->
+                          <div class="flex items-center gap-3 min-w-0">
+                            @if (u.avatarUrl; as avatar) {
+                              <img
+                                [src]="avatar"
+                                [alt]="'@' + u.username"
+                                class="w-10 h-10 rounded-full border-2 border-[#63de86] object-cover shrink-0"
+                              />
+                            } @else {
+                              <span
+                                class="w-10 h-10 rounded-full bg-[#272939] border-2 border-[#63de86] flex items-center justify-center text-[#63de86] shrink-0"
+                              >
+                                <app-pixel-icon name="user" [size]="18" />
+                              </span>
+                            }
+
+                            <div class="min-w-0">
+                              <div class="flex flex-wrap items-center gap-2">
+                                <h3 class="font-code font-bold text-[14px] text-white truncate">
+                                  {{ u.firstName }} {{ u.middleName ?? '' }}
+                                </h3>
+                                <span
+                                  class="px-2 py-0.5 font-pixel text-[8.5px] border"
+                                  [class.bg-[#10261a]]="u.role === 'Admin'"
+                                  [class.border-[#63de86]]="u.role === 'Admin'"
+                                  [class.text-[#63de86]]="u.role === 'Admin'"
+                                  [class.bg-[#181a2a]]="u.role !== 'Admin'"
+                                  [class.border-[#3e4a3e]]="u.role !== 'Admin'"
+                                  [class.text-[#bdcabb]]="u.role !== 'Admin'"
+                                >
+                                  {{ u.role }}
+                                </span>
+                                <span
+                                  class="bg-[#181a2a] border border-[#2f3142] px-2 py-0.5 font-pixel text-[8.5px] text-[#f0bf69]"
+                                >
+                                  {{ u.planType }} · {{ u.authProvider }}
+                                </span>
+                              </div>
+                              <p class="font-code text-[11.5px] text-[#63de86] truncate">
+                                &#64;{{ u.username }}
+                                <span class="text-[#8a8ba0]">· {{ u.email }}</span>
+                              </p>
+                            </div>
+                          </div>
+
+                          <!-- RPG Stats Strip -->
+                          <div class="flex flex-wrap items-center gap-2 font-code text-[11px]">
+                            <span
+                              class="bg-[#181a2a] border border-[#2f3142] px-2.5 py-1 text-[#f0bf69] font-bold"
+                            >
+                              LVL {{ u.currentLevel.toString().padStart(2, '0') }}
+                            </span>
+                            <span
+                              class="bg-[#181a2a] border border-[#2f3142] px-2.5 py-1 text-[#63de86]"
+                            >
+                              {{ u.totalXp }} XP
+                            </span>
+                            <span
+                              class="bg-[#181a2a] border border-[#2f3142] px-2.5 py-1 text-[#f0bf69]"
+                            >
+                              STREAK: {{ u.currentStreak }}D (MAX {{ u.longestStreak }}D)
+                            </span>
+                            <span
+                              class="bg-[#181a2a] border border-[#2f3142] px-2.5 py-1 text-[#99cbff]"
+                            >
+                              {{ u.gems }} GEMS
+                            </span>
+                          </div>
+                        </div>
+
+                        <!-- Per-Module Progress Breakdown & Overall Progress Bar -->
+                        <div
+                          class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center font-code text-[11px]"
+                        >
+                          <!-- 4 Module Status Pills (7 cols) -->
+                          <div class="lg:col-span-7 space-y-1.5">
+                            <span class="block font-pixel text-[8.5px] text-[#8a8ba0]">
+                              MODULE PROGRESSION ({{ u.completedModulesCount }}/{{
+                                u.totalModulesCount
+                              }}
+                              COMPLETED · {{ u.startedModulesCount }} STARTED)
+                            </span>
+                            <div class="flex flex-wrap gap-2">
+                              @for (mod of summary.modules; track mod.slug) {
+                                @let status = getUserModuleStatus(u, mod.slug);
+                                <span
+                                  class="px-2.5 py-1 font-pixel text-[9px] border inline-flex items-center gap-1.5"
+                                  [class.bg-[#10261a]]="status === 'completed'"
+                                  [class.border-[#38b764]]="status === 'completed'"
+                                  [class.text-[#63de86]]="status === 'completed'"
+                                  [class.bg-[#241e12]]="status === 'in-progress'"
+                                  [class.border-[#f0bf69]]="status === 'in-progress'"
+                                  [class.text-[#f0bf69]]="status === 'in-progress'"
+                                  [class.bg-[#181a2a]]="status === 'not-started'"
+                                  [class.border-[#2f3142]]="status === 'not-started'"
+                                  [class.text-[#8a8ba0]]="status === 'not-started'"
+                                >
+                                  <span>{{ mod.title }}:</span>
+                                  @if (status === 'completed') {
+                                    <span>✓ DONE</span>
+                                  } @else if (status === 'in-progress') {
+                                    <span>● IN PROGRESS</span>
+                                  } @else {
+                                    <span>○ NOT STARTED</span>
+                                  }
+                                </span>
+                              }
+                            </div>
+                          </div>
+
+                          <!-- Overall Progress Bar (3 cols) -->
+                          <div class="lg:col-span-3 space-y-1">
+                            <div class="flex justify-between font-pixel text-[9px]">
+                              <span class="text-[#8a8ba0]">CURRICULUM COMPLETION</span>
+                              <span class="text-[#63de86]">{{ u.overallProgressPercent }}%</span>
+                            </div>
+                            <div class="h-2.5 bg-[#0b0d1c] border border-[#2f3142] overflow-hidden">
+                              <div
+                                class="h-full bg-[#38b764] transition-all"
+                                [style.width.%]="u.overallProgressPercent"
+                              ></div>
+                            </div>
+                            <span class="block text-[10px] text-[#8a8ba0]">
+                              Joined: {{ u.createdAt | date: 'shortDate' }}
+                              @if (u.lastActivityAtUtc; as lastAct) {
+                                · Active: {{ lastAct | date: 'short' }}
+                              }
+                            </span>
+                          </div>
+
+                          <!-- Admin Quick Actions (2 cols) -->
+                          <div class="lg:col-span-2 flex flex-wrap lg:justify-end gap-2">
+                            <button
+                              type="button"
+                              (click)="toggleUserRole(u)"
+                              [disabled]="updatingRoleUserId() === u.id"
+                              class="bg-[#181a2a] border border-[#f0bf69] hover:bg-[#272939] disabled:opacity-50 px-2.5 py-1.5 font-pixel text-[8.5px] text-[#f0bf69] cursor-pointer transition-colors"
+                              title="Toggle role between User and Admin (PUT /api/users/{id}/role)"
+                            >
+                              {{
+                                updatingRoleUserId() === u.id
+                                  ? '...'
+                                  : u.role === 'Admin'
+                                    ? '[ SET USER ]'
+                                    : '[ MAKE ADMIN ]'
+                              }}
+                            </button>
+
+                            <button
+                              type="button"
+                              (click)="deactivateAdventurerFromAdmin(u)"
+                              [disabled]="deactivatingUserId() === u.id"
+                              class="bg-[#3b1219] border border-[#ffb4ab]/50 hover:bg-[#521923] disabled:opacity-50 px-2.5 py-1.5 font-pixel text-[8.5px] text-[#ffb4ab] cursor-pointer transition-colors"
+                              title="Soft-delete adventurer (DELETE /api/users/{id})"
+                            >
+                              {{ deactivatingUserId() === u.id ? '...' : '[ X ]' }}
+                            </button>
+                          </div>
+                        </div>
+                      </article>
+                    }
+                  </div>
+                }
               </div>
             }
           </section>

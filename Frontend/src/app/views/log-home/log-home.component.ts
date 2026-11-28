@@ -1,4 +1,5 @@
 import { DatePipe } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -25,6 +26,10 @@ import {
   CourseDefinition,
   DashboardNavTab,
 } from '../../models/course-catalog.models';
+import {
+  AdminAnalyticsSummaryDto,
+  RegisteredUserProgressDto,
+} from '../../models/user.models';
 import { AuthService } from '../../services/auth.service';
 
 function buildCourseCardState(course: CourseDefinition, userLevel: number): CourseCardState {
@@ -73,6 +78,14 @@ export class LogHomeComponent implements OnInit {
   protected readonly activeTab = signal<DashboardNavTab>('cursos');
   protected readonly loggingOut = signal<boolean>(false);
   protected readonly selectedCourse = signal<CourseDefinition | null>(null);
+
+  // Real Admin Analytics & Registered Users Progress State (from GET /api/analytics/admin/summary)
+  protected readonly adminSummary = signal<AdminAnalyticsSummaryDto | null>(null);
+  protected readonly adminLoading = signal<boolean>(false);
+  protected readonly adminError = signal<string | null>(null);
+  protected readonly adminNotice = signal<string | null>(null);
+  protected readonly updatingRoleUserId = signal<string | null>(null);
+  protected readonly deactivatingUserId = signal<string | null>(null);
 
   protected readonly electiveRequiredLevelLabel = ELECTIVE_REQUIRED_LEVEL.toString().padStart(
     2,
@@ -144,6 +157,89 @@ export class LogHomeComponent implements OnInit {
   protected selectTab(tab: DashboardNavTab): void {
     this.activeTab.set(tab);
     this.mobileSidebarOpen.set(false);
+
+    if (tab === 'admin' && this.isAdmin()) {
+      this.loadAdminSummary();
+    }
+  }
+
+  protected loadAdminSummary(): void {
+    this.adminLoading.set(true);
+    this.adminError.set(null);
+
+    this.authService.getAdminAnalyticsSummary().subscribe({
+      next: (summary) => {
+        this.adminLoading.set(false);
+        this.adminSummary.set(summary);
+      },
+      error: (err: HttpErrorResponse) => {
+        this.adminLoading.set(false);
+        this.adminError.set(
+          err.error?.detail ||
+            err.error?.title ||
+            'Unable to load live admin analytics and user progression from Orion API.',
+        );
+      },
+    });
+  }
+
+  protected getUserModuleStatus(
+    user: RegisteredUserProgressDto,
+    moduleSlug: string,
+  ): 'completed' | 'in-progress' | 'not-started' {
+    const slug = moduleSlug.toLowerCase();
+    if (user.completedModules.some((m) => m.toLowerCase() === slug)) {
+      return 'completed';
+    }
+    if (user.startedModules.some((m) => m.toLowerCase() === slug)) {
+      return 'in-progress';
+    }
+    return 'not-started';
+  }
+
+  protected toggleUserRole(user: RegisteredUserProgressDto): void {
+    const nextRole: 'User' | 'Admin' = user.role === 'Admin' ? 'User' : 'Admin';
+    this.updatingRoleUserId.set(user.id);
+    this.adminError.set(null);
+    this.adminNotice.set(null);
+
+    this.authService.updateRole(user.id, nextRole).subscribe({
+      next: (updated) => {
+        this.updatingRoleUserId.set(null);
+        this.adminNotice.set(`Updated @${updated.username} role to ${updated.role}.`);
+        this.loadAdminSummary();
+      },
+      error: (err: HttpErrorResponse) => {
+        this.updatingRoleUserId.set(null);
+        this.adminError.set(
+          err.error?.detail || err.error?.title || 'Could not update adventurer role.',
+        );
+      },
+    });
+  }
+
+  protected deactivateAdventurerFromAdmin(user: RegisteredUserProgressDto): void {
+    if (!confirm(`Deactivate adventurer @${user.username} (${user.email})?`)) {
+      return;
+    }
+
+    this.deactivatingUserId.set(user.id);
+    this.adminError.set(null);
+    this.adminNotice.set(null);
+
+    this.authService.softDelete(user.id).subscribe({
+      next: () => {
+        this.deactivatingUserId.set(null);
+        this.adminNotice.set(`Adventurer @${user.username} was deactivated.`);
+        this.loadAdminSummary();
+      },
+      error: (err: HttpErrorResponse) => {
+        this.deactivatingUserId.set(null);
+        this.adminError.set(
+          err.error?.detail || err.error?.title || 'Could not deactivate adventurer account.',
+        );
+      },
+    });
   }
 
   protected openCoursePreview(course: CourseDefinition): void {

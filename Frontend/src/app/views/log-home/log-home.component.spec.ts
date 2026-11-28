@@ -238,4 +238,81 @@ describe('LogHomeComponent', () => {
     expect(authService.isAuthenticated()).toBe(false);
     expect(navigateSpy).toHaveBeenCalledWith(['/login']);
   });
+
+  it('should display [ ADMIN PANEL ] for Admin users and hydrate real registered users & module progress from GET /api/analytics/admin/summary', async () => {
+    window.localStorage.setItem(
+      'orion.auth.session',
+      JSON.stringify({
+        accessToken: 'jwt-admin-token',
+        expiresAtUtc: new Date(Date.now() + 60_000).toISOString(),
+        rememberTerminal: true,
+        user: createMockUser({ role: 'Admin', username: 'juanjo2409', email: 'juanjosemn160@gmail.com' }),
+      }),
+    );
+
+    const fixture = TestBed.createComponent(LogHomeComponent);
+    fixture.detectChanges();
+    httpTesting
+      .expectOne(`${environment.apiUrl}/auth/me`)
+      .flush(createMockUser({ role: 'Admin', username: 'juanjo2409', email: 'juanjosemn160@gmail.com' }));
+    await fixture.whenStable();
+
+    const element = fixture.nativeElement as HTMLElement;
+    const adminBtn = Array.from(element.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('[ ADMIN PANEL ]'),
+    );
+    expect(adminBtn).toBeTruthy();
+
+    adminBtn?.click();
+
+    const summaryReq = httpTesting.expectOne(`${environment.apiUrl}/analytics/admin/summary`);
+    expect(summaryReq.request.method).toBe('GET');
+    summaryReq.flush({
+      uniqueVisitorsLast30Days: 18,
+      activeVisitorsLast24Hours: 5,
+      totalRegisteredUsers: 3,
+      modules: [
+        { slug: 'python', title: 'Python', orderIndex: 1, uniqueStarts: 3, uniqueCompletions: 2, completionRatePercent: 66.67 },
+        { slug: 'html-css', title: 'HTML & CSS', orderIndex: 2, uniqueStarts: 1, uniqueCompletions: 0, completionRatePercent: 0 },
+        { slug: 'js', title: 'JavaScript', orderIndex: 3, uniqueStarts: 0, uniqueCompletions: 0, completionRatePercent: 0 },
+        { slug: 'postgres', title: 'PostgreSQL', orderIndex: 4, uniqueStarts: 0, uniqueCompletions: 0, completionRatePercent: 0 },
+      ],
+      usersProgress: [
+        {
+          id: '5d82fc30-af9d-4c9e-bf4c-f6f562dafc96',
+          firstName: 'Juan',
+          middleName: 'Maldonado',
+          email: 'juanjosemn160@gmail.com',
+          username: 'juanjo2409',
+          avatarUrl: null,
+          authProvider: 'Local',
+          role: 'Admin',
+          planType: 'Free',
+          currentLevel: 1,
+          totalXp: 0,
+          currentStreak: 0,
+          longestStreak: 0,
+          gems: 0,
+          startedModules: ['python', 'html-css'],
+          completedModules: ['python'],
+          startedModulesCount: 2,
+          completedModulesCount: 1,
+          totalModulesCount: 4,
+          overallProgressPercent: 25,
+          createdAt: '2026-11-28T00:05:10Z',
+          lastActivityAtUtc: '2026-11-28T01:00:00Z',
+        },
+      ],
+    });
+
+    await fixture.whenStable();
+
+    const text = element.textContent ?? '';
+    expect(text).toContain('[ ADMIN PANEL · USERS & PROGRESS ]');
+    expect(text).toContain('Juan Maldonado');
+    expect(text).toContain('@juanjo2409');
+    expect(text).toContain('25%');
+    expect(text).toContain('✓ DONE');
+    expect(text).toContain('● IN PROGRESS');
+  });
 });

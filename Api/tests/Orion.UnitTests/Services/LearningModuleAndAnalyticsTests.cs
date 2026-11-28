@@ -139,6 +139,27 @@ public sealed class LearningModuleAndAnalyticsTests
                 new(ModuleSlugs.HtmlCss, UniqueStarts: 20, UniqueCompletions: 10)
             });
 
+        var sampleUser = User.CreateLocal(
+            firstName: "Juan",
+            middleName: "Maldonado",
+            email: "juanjosemn160@gmail.com",
+            username: "juanjo2409",
+            passwordHash: "hashed",
+            acceptedTermsAtUtc: DateTime.UtcNow);
+
+        _analyticsRepository.GetAllActiveUsersOrderedAsync(Arg.Any<CancellationToken>())
+            .Returns(new List<User> { sampleUser });
+
+        _analyticsRepository.GetUserModuleActivityAsync(Arg.Any<CancellationToken>())
+            .Returns(new List<UserModuleActivityAggregate>
+            {
+                new(
+                    UserId: sampleUser.Id,
+                    StartedModuleSlugs: [ModuleSlugs.Python, ModuleSlugs.HtmlCss],
+                    CompletedModuleSlugs: [ModuleSlugs.Python],
+                    LastActivityAtUtc: DateTime.UtcNow)
+            });
+
         var summary = await _analyticsService.GetAdminSummaryAsync();
 
         Assert.Equal(120, summary.UniqueVisitorsLast30Days);
@@ -155,5 +176,13 @@ public sealed class LearningModuleAndAnalyticsTests
         Assert.Equal(0, postgresStats.UniqueStarts);
         Assert.Equal(0, postgresStats.UniqueCompletions);
         Assert.Equal(0.0, postgresStats.CompletionRatePercent);
+
+        Assert.Single(summary.UsersProgress);
+        var userProgress = summary.UsersProgress[0];
+        Assert.Equal("juanjo2409", userProgress.Username);
+        Assert.Equal(2, userProgress.StartedModulesCount);
+        Assert.Equal(1, userProgress.CompletedModulesCount);
+        Assert.Equal(4, userProgress.TotalModulesCount);
+        Assert.Equal(25.0, userProgress.OverallProgressPercent);
     }
 }

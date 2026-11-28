@@ -9,8 +9,11 @@ import {
   RegisterCharacterPayload,
 } from '../models/auth.models';
 import {
+  AdminAnalyticsSummaryDto,
+  LearningModuleDto,
   PagedResponse,
   RegisterUserRequest,
+  TrackEventRequest,
   UpdateUserProfileRequest,
   UserResponse,
 } from '../models/user.models';
@@ -23,6 +26,7 @@ interface StoredAuthSession {
 }
 
 const AUTH_STORAGE_KEY = 'orion.auth.session';
+const VISITOR_STORAGE_KEY = 'orion.analytics.visitorId';
 
 @Injectable({
   providedIn: 'root',
@@ -31,6 +35,8 @@ export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly authUrl = `${environment.apiUrl}/auth`;
   private readonly usersUrl = `${environment.apiUrl}/users`;
+  private readonly modulesUrl = `${environment.apiUrl}/modules`;
+  private readonly analyticsUrl = `${environment.apiUrl}/analytics`;
 
   private readonly _accessToken = signal<string | null>(null);
   private readonly _expiresAtUtc = signal<string | null>(null);
@@ -202,6 +208,85 @@ export class AuthService {
         }
       }),
     );
+  }
+
+  /**
+   * Updates an adventurer's authorization role ("User" or "Admin") via PUT /api/users/{id}/role (Admin only).
+   */
+  updateRole(id: string, role: 'User' | 'Admin'): Observable<UserResponse> {
+    return this.http.put<UserResponse>(`${this.usersUrl}/${id}/role`, { role }).pipe(
+      tap((updated) => {
+        if (this._currentUser()?.id === updated.id) {
+          this._currentUser.set(updated);
+          this.syncStoredUser(updated);
+        }
+      }),
+    );
+  }
+
+  // ===========================================================================
+  // Learning Modules & Admin Analytics Endpoints (/api/modules, /api/analytics)
+  // ===========================================================================
+
+  /**
+   * Retrieves the 4 active learning path modules via GET /api/modules.
+   */
+  getModules(): Observable<readonly LearningModuleDto[]> {
+    return this.http.get<readonly LearningModuleDto[]>(this.modulesUrl);
+  }
+
+  /**
+   * Records a telemetry event (page_view, module_start, module_complete) via POST /api/analytics/track.
+   */
+  trackEvent(
+    eventType: 'page_view' | 'module_start' | 'module_complete',
+    path: string,
+    moduleSlug: string | null = null,
+  ): Observable<void> {
+    const payload: TrackEventRequest = {
+      visitorId: this.getOrCreateVisitorId(),
+      eventType,
+      moduleSlug,
+      path,
+    };
+
+    return this.http
+      .post<void>(`${this.analyticsUrl}/track`, payload)
+      .pipe(catchError(() => of(void 0)));
+  }
+
+  /**
+   * Retrieves the live Admin analytics summary and per-user progression via GET /api/analytics/admin/summary.
+   */
+  getAdminAnalyticsSummary(): Observable<AdminAnalyticsSummaryDto> {
+    return this.http.get<AdminAnalyticsSummaryDto>(`${this.analyticsUrl}/admin/summary`);
+  }
+
+  private getOrCreateVisitorId(): string {
+    const storage = this.getStorage('local');
+    if (storage) {
+      const existing = storage.getItem(VISITOR_STORAGE_KEY);
+      if (existing && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(existing)) {
+        return existing;
+      }
+    }
+
+    const generated =
+      typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+        ? crypto.randomUUID()
+        : '10000000-1000-4000-8000-100000000000'.replace(/[018]/g, (c) =>
+            (+c ^ (Math.floor(Math.random() * 16) >> (+c / 4))).toString(16),
+          );
+
+    if (storage) {
+      try {
+        storage.setItem(VISITOR_STORAGE_KEY, generated);
+      } catch {
+        // Ignore storage errors
+      }
+    }
+
+    return generated;
   }
 
   // ===========================================================================

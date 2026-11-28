@@ -78,10 +78,54 @@ public sealed class AnalyticsService(
             })
             .ToList();
 
+        var totalModulesCount = moduleMetrics.Count;
+        var activeUsers = await analyticsRepository.GetAllActiveUsersOrderedAsync(cancellationToken);
+        var userActivities = await analyticsRepository.GetUserModuleActivityAsync(cancellationToken);
+        var activityByUserId = userActivities.ToDictionary(a => a.UserId);
+
+        var usersProgress = activeUsers
+            .Select(user =>
+            {
+                var hasActivity = activityByUserId.TryGetValue(user.Id, out var activity);
+                var startedSlugs = hasActivity ? activity!.StartedModuleSlugs : [];
+                var completedSlugs = hasActivity ? activity!.CompletedModuleSlugs : [];
+                var startedCount = startedSlugs.Count;
+                var completedCount = completedSlugs.Count;
+                var progressPercent = totalModulesCount > 0
+                    ? Math.Round(Math.Min(100.0, (completedCount / (double)totalModulesCount) * 100.0), 2)
+                    : 0.0;
+
+                return new RegisteredUserProgressDto(
+                    Id: user.Id,
+                    FirstName: user.FirstName,
+                    MiddleName: user.MiddleName,
+                    Email: user.Email,
+                    Username: user.Username,
+                    AvatarUrl: user.AvatarUrl,
+                    AuthProvider: user.AuthProvider.ToString(),
+                    Role: user.Role.ToString(),
+                    PlanType: user.PlanType.ToString(),
+                    CurrentLevel: user.CurrentLevel,
+                    TotalXp: user.TotalXp,
+                    CurrentStreak: user.CurrentStreak,
+                    LongestStreak: user.LongestStreak,
+                    Gems: user.Gems,
+                    StartedModules: startedSlugs,
+                    CompletedModules: completedSlugs,
+                    StartedModulesCount: startedCount,
+                    CompletedModulesCount: completedCount,
+                    TotalModulesCount: totalModulesCount,
+                    OverallProgressPercent: progressPercent,
+                    CreatedAt: user.CreatedAt,
+                    LastActivityAtUtc: hasActivity ? activity!.LastActivityAtUtc : user.UpdatedAt);
+            })
+            .ToList();
+
         return new AdminAnalyticsSummaryDto(
             UniqueVisitorsLast30Days: uniqueVisitors30d,
             ActiveVisitorsLast24Hours: activeVisitors24h,
             TotalRegisteredUsers: totalUsers,
-            Modules: moduleMetrics);
+            Modules: moduleMetrics,
+            UsersProgress: usersProgress);
     }
 }

@@ -21,7 +21,7 @@
 
     <!-- Primary Sections -->
     <nav class="space-y-2.5" aria-label="Dashboard sections">
-      @for (item of navItems; track item.id) {
+      @for (item of navItems(); track item.id) {
         <button
           type="button"
           (click)="tabSelected.emit(item.id)"

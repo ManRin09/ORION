@@ -64,6 +64,63 @@ public sealed class AnalyticsRepository(AppDbContext dbContext) : IAnalyticsRepo
             .ToList();
     }
 
+    public async Task<IReadOnlyList<User>> GetAllActiveUsersOrderedAsync(
+        CancellationToken cancellationToken = default) =>
+        await dbContext.Users
+            .AsNoTracking()
+            .OrderByDescending(u => u.CreatedAt)
+            .ThenBy(u => u.Username)
+            .ToListAsync(cancellationToken);
+
+    public async Task<IReadOnlyList<UserModuleActivityAggregate>> GetUserModuleActivityAsync(
+        CancellationToken cancellationToken = default)
+    {
+        var userEvents = await dbContext.AnalyticsEvents
+            .AsNoTracking()
+            .Where(e => e.UserId != null)
+            .Select(e => new
+            {
+                UserId = e.UserId!.Value,
+                e.EventType,
+                e.ModuleSlug,
+                e.CreatedAt
+            })
+            .ToListAsync(cancellationToken);
+
+        return userEvents
+            .GroupBy(e => e.UserId)
+            .Select(group =>
+            {
+                var started = group
+                    .Where(e =>
+                        !string.IsNullOrWhiteSpace(e.ModuleSlug) &&
+                        (e.EventType == AnalyticsEventTypes.ModuleStart ||
+                         e.EventType == AnalyticsEventTypes.ModuleComplete))
+                    .Select(e => e.ModuleSlug!.ToLowerInvariant())
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .OrderBy(slug => slug, StringComparer.OrdinalIgnoreCase)
+                    .ToList();
+
+                var completed = group
+                    .Where(e =>
+                        !string.IsNullOrWhiteSpace(e.ModuleSlug) &&
+                        e.EventType == AnalyticsEventTypes.ModuleComplete)
+                    .Select(e => e.ModuleSlug!.ToLowerInvariant())
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .OrderBy(slug => slug, StringComparer.OrdinalIgnoreCase)
+                    .ToList();
+
+                var lastActivity = group.Max(e => (DateTime?)e.CreatedAt);
+
+                return new UserModuleActivityAggregate(
+                    UserId: group.Key,
+                    StartedModuleSlugs: started,
+                    CompletedModuleSlugs: completed,
+                    LastActivityAtUtc: lastActivity);
+            })
+            .ToList();
+    }
+
     public Task SaveChangesAsync(CancellationToken cancellationToken = default) =>
         dbContext.SaveChangesAsync(cancellationToken);
 }

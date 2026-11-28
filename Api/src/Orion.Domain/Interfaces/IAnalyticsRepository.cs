@@ -11,6 +11,15 @@ public sealed record ModuleEngagementAggregate(
     int UniqueCompletions);
 
 /// <summary>
+/// Per-user aggregated module telemetry from <c>analytics_events</c>.
+/// </summary>
+public sealed record UserModuleActivityAggregate(
+    Guid UserId,
+    IReadOnlyList<string> StartedModuleSlugs,
+    IReadOnlyList<string> CompletedModuleSlugs,
+    DateTime? LastActivityAtUtc);
+
+/// <summary>
 /// Persistence contract for recording telemetry events and querying aggregated admin metrics.
 /// </summary>
 public interface IAnalyticsRepository
@@ -22,6 +31,12 @@ public interface IAnalyticsRepository
     Task<int> CountTotalRegisteredUsersAsync(CancellationToken cancellationToken = default);
 
     Task<IReadOnlyList<ModuleEngagementAggregate>> GetModuleEngagementAsync(
+        CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<User>> GetAllActiveUsersOrderedAsync(
+        CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<UserModuleActivityAggregate>> GetUserModuleActivityAsync(
         CancellationToken cancellationToken = default);
 
     Task SaveChangesAsync(CancellationToken cancellationToken = default);
