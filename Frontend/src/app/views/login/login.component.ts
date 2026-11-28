@@ -49,9 +49,11 @@ export class LoginComponent {
         });
 
         const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
-        if (returnUrl && returnUrl.startsWith('/') && !returnUrl.startsWith('//')) {
-          void this.router.navigateByUrl(returnUrl);
-        }
+        const targetUrl =
+          returnUrl && returnUrl.startsWith('/') && !returnUrl.startsWith('//')
+            ? returnUrl
+            : '/home';
+        void this.router.navigateByUrl(targetUrl);
       },
       error: (err: HttpErrorResponse) => {
         this.isSubmitting.set(false);

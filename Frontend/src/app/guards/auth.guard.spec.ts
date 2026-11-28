@@ -9,7 +9,7 @@ import {
 } from '@angular/router';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { AuthService } from '../services/auth.service';
-import { adminGuard, authGuard } from './auth.guard';
+import { adminGuard, authGuard, guestGuard } from './auth.guard';
 
 describe('authGuard & adminGuard', () => {
   beforeEach(() => {
@@ -89,5 +89,26 @@ describe('authGuard & adminGuard', () => {
     );
 
     expect(result).toBe(true);
+  });
+
+  it('should redirect authenticated users from guestGuard to /home', () => {
+    window.localStorage.setItem(
+      'orion.auth.session',
+      JSON.stringify({
+        accessToken: 'jwt-token',
+        expiresAtUtc: new Date(Date.now() + 60_000).toISOString(),
+        rememberTerminal: true,
+        user: null,
+      }),
+    );
+
+    TestBed.inject(AuthService);
+
+    const result = TestBed.runInInjectionContext(() =>
+      guestGuard({} as ActivatedRouteSnapshot, { url: '/login' } as RouterStateSnapshot),
+    );
+
+    expect(result).toBeInstanceOf(UrlTree);
+    expect((result as UrlTree).toString()).toBe('/home');
   });
 });

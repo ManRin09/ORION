@@ -1,0 +1,86 @@
+<header
+  class="sticky top-0 z-40 h-14 bg-[#101222] border-b border-[#2f3142] px-3 sm:px-5 flex items-center justify-between gap-3"
+>
+  <!-- Left: Menu toggle + Orion Brand -->
+  <div class="flex items-center gap-3 min-w-0">
+    <button
+      type="button"
+      (click)="menuToggled.emit()"
+      aria-label="Toggle navigation menu"
+      class="w-9 h-9 bg-[#181a2a] border border-[#3e4a3e] hover:border-[#63de86] text-[#e1e1f7] flex items-center justify-center cursor-pointer transition-colors shrink-0"
+    >
+      <app-pixel-icon name="menu" [size]="16" />
+    </button>
+
+    <a
+      routerLink="/home"
+      class="inline-flex items-center gap-2.5 group min-w-0"
+      aria-label="Orion Quests Home"
+    >
+      <span
+        class="w-8 h-8 bg-[#181a2a] border border-[#3e4a3e] group-hover:border-[#63de86] flex items-center justify-center shrink-0 overflow-hidden transition-colors"
+      >
+        <img
+          src="Favicom2.png"
+          alt="Orion crest"
+          class="w-6 h-6 object-contain [image-rendering:pixelated]"
+        />
+      </span>
+      <span
+        class="font-display text-[13px] sm:text-[15px] tracking-[0.12em] text-[#63de86] truncate"
+      >
+        ORION
+      </span>
+    </a>
+  </div>
+
+  <!-- Right: Real User Stats (Streak + Gems) + Level & Handle -->
+  <div class="flex items-center gap-2.5 sm:gap-3 shrink-0">
+    <div
+      class="hidden sm:inline-flex items-center gap-3 bg-[#0b0d1c] border border-[#2f3142] px-3.5 py-1.5 font-pixel text-[10.5px] tracking-[0.06em]"
+      aria-label="Adventurer streak and gems"
+    >
+      <span class="inline-flex items-center gap-1.5 text-[#f0bf69]">
+        <app-pixel-icon name="flame" [size]="13" />
+        <span>{{ streakText() }}</span>
+      </span>
+      <span class="text-[#3e4a3e]" aria-hidden="true">|</span>
+      <span class="inline-flex items-center gap-1.5 text-[#99cbff]">
+        <app-pixel-icon name="diamond" [size]="13" />
+        <span>{{ gemsCount() }} GEMS</span>
+      </span>
+    </div>
+
+    <button
+      type="button"
+      (click)="profileSelected.emit()"
+      class="inline-flex items-center gap-2.5 bg-[#181a2a] border border-[#2f3142] hover:border-[#63de86] px-2.5 sm:px-3 py-1 cursor-pointer transition-colors"
+      aria-label="Open adventurer profile"
+    >
+      <div class="text-right leading-tight">
+        <span class="block font-pixel text-[9px] tracking-[0.06em] text-[#f0bf69]">
+          LVL {{ formattedLevel() }}
+        </span>
+        <span
+          class="block font-code text-[11px] font-semibold text-[#e1e1f7] max-w-[130px] truncate"
+        >
+          {{ displayHandle() }}
+        </span>
+      </div>
+
+      @if (user()?.avatarUrl; as avatar) {
+        <img
+          [src]="avatar"
+          [alt]="displayHandle()"
+          class="w-8 h-8 rounded-full border-2 border-[#63de86] object-cover shrink-0"
+        />
+      } @else {
+        <span
+          class="w-8 h-8 rounded-full bg-[#38b764] border-2 border-black flex items-center justify-center text-[#00411c] shrink-0"
+        >
+          <app-pixel-icon name="user" [size]="15" />
+        </span>
+      }
+    </button>
+  </div>
+</header>

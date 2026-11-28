@@ -44,12 +44,13 @@
     <!-- Right: Auth + CTA + Adventurer Avatar -->
     <div class="hidden md:flex items-center gap-3.5">
       @if (isAuthenticated()) {
-        <span
-          class="bg-[#101222] border-2 border-[#63de86] px-3 py-1.5 font-code text-[11px] text-[#63de86]"
+        <a
+          routerLink="/home"
+          class="bg-[#101222] border-2 border-[#63de86] hover:bg-[#1c1e2f] px-3 py-1.5 font-code text-[11px] text-[#63de86] transition-colors"
         >
           &#64;{{ currentUser()?.username ?? 'adventurer' }} · LVL
           {{ currentUser()?.currentLevel ?? 1 }}
-        </span>
+        </a>
 
         <button
           type="button"
@@ -120,6 +121,13 @@
       </nav>
       <div class="pt-3 border-t border-[#2f3142] flex flex-wrap items-center gap-2">
         @if (isAuthenticated()) {
+          <a
+            routerLink="/home"
+            (click)="mobileMenuOpen.set(false)"
+            class="flex-1 text-center bg-[#101222] border-2 border-[#63de86] px-3 py-2 text-xs text-[#63de86] font-pixel"
+          >
+            [ QUEST HOME ]
+          </a>
           <button
             type="button"
             (click)="logout()"

@@ -9,7 +9,7 @@ Este archivo define la ventana de contexto técnica para cualquier agente de IA 
 | Ruta | Stack | Rol | Estado actual |
 | :--- | :--- | :--- | :--- |
 | `Api/` | .NET 10, ASP.NET Core, EF Core 10, Npgsql, FluentValidation, BCrypt, JWT | Backend REST API con Clean Architecture | Funcional (`UsersController` + `AuthController`), con pruebas unitarias y dockerizado para Render |
-| `Frontend/` | Angular 22.3, TypeScript 6, Tailwind CSS v4, Vitest | SPA con temática RPG 16-bit (`/`, `/login`, `/register`, `/adventurers`, `/auth/callback`) | Conectado a `Orion.Api` mediante un único `AuthService` (`/api/auth` y `/api/users`), `authInterceptor` (Bearer JWT) y `authGuard` |
+| `Frontend/` | Angular 22.3, TypeScript 6, Tailwind CSS v4, Vitest | SPA con temática RPG 16-bit (`/`, `/home`, `/login`, `/register`, `/adventurers`, `/auth/callback`) | Conectado a `Orion.Api` mediante un único `AuthService` (`/api/auth` y `/api/users`), `authInterceptor` (Bearer JWT) y `authGuard` |
 
 ---
 
@@ -45,11 +45,12 @@ Este archivo define la ventana de contexto técnica para cualquier agente de IA 
 - **Configuración raíz:** `Frontend/package.json`, `Frontend/angular.json`, `Frontend/tsconfig.json`
 - **App shell & rutas:** `Frontend/src/app/{app.ts,app.config.ts,app.routes.ts}`, `Frontend/src/index.html`, `Frontend/src/styles.css`
 - **Entornos (`src/environments/`):** `environment.ts` (Render: `https://orion-backend-yar4.onrender.com/api`) y `environment.development.ts` (Local: `http://localhost:5092/api`, reemplazado en `ng serve` mediante `fileReplacements` en `angular.json`)
-- **Modelos y datos:** `Frontend/src/app/models/{auth.models.ts,quest-landing.models.ts,user.models.ts}`, `Frontend/src/app/data/quest-landing.data.ts`
+- **Modelos y datos:** `Frontend/src/app/models/{auth.models.ts,course-catalog.models.ts,quest-landing.models.ts,user.models.ts}`, `Frontend/src/app/data/{course-catalog.data.ts,quest-landing.data.ts}`
 - **Servicio HTTP único:** `Frontend/src/app/services/auth.service.ts` (`/api/auth` y CRUD `/api/users`)
 - **Interceptores y Guards:** `Frontend/src/app/interceptors/auth.interceptor.ts` (`Authorization: Bearer` + manejo `401`), `Frontend/src/app/guards/auth.guard.ts` (`authGuard`, `guestGuard`)
-- **Vistas (lazy-loaded):** `Frontend/src/app/views/{home,login,register,adventurers,auth-callback}/`
+- **Vistas (lazy-loaded):** `Frontend/src/app/views/{home,log-home,login,register,adventurers,auth-callback}/`
 - **Componentes:**
+  - `Frontend/src/app/components/dashboard/` (`dashboard-topbar`, `dashboard-sidebar`, `course-track-card`, `elective-guild-card`)
   - `Frontend/src/app/components/landing/` (`navbar`, `hero-section`, `battle-arena`, `quest-map`, `zone-card`, `guild-inventory`, `questing-comparison`, `save-point-cta`, `footer`)
   - `Frontend/src/app/components/auth/` (`login-card`, `register-card`, `cipher-requirements`, `familiar-guide-card`)
   - `Frontend/src/app/components/shared/` (`pixel-icon`, `retro-button`)

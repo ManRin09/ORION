@@ -1,8 +1,8 @@
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { provideRouter, Router } from '@angular/router';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { environment } from '../../../environments/environment';
 import { AuthResponse } from '../../models/auth.models';
 import { LoginComponent } from './login.component';
@@ -110,7 +110,10 @@ describe('LoginComponent', () => {
     expect(element.textContent).toContain('Both your Adventurer Name/Email');
   });
 
-  it('should POST credentials to /api/auth/login and unlock Slot 01 on success', async () => {
+  it('should POST credentials to /api/auth/login, unlock Slot 01, and navigate to /home on success', async () => {
+    const router = TestBed.inject(Router);
+    const navigateByUrlSpy = vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
+
     const fixture = TestBed.createComponent(LoginComponent);
     await fixture.whenStable();
     const element = fixture.nativeElement as HTMLElement;
@@ -140,6 +143,7 @@ describe('LoginComponent', () => {
 
     expect(element.textContent).toContain('Slot 01 unlocked for warrior_dev@orion.realm');
     expect(element.textContent).toContain('@warrior_dev');
+    expect(navigateByUrlSpy).toHaveBeenCalledWith('/home');
   });
 
   it('should show ProblemDetails warning in Pyxis when login fails with 401', async () => {

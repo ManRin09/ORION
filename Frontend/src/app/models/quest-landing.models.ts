@@ -28,7 +28,12 @@ export type PixelIconName =
   | 'pyxis'
   | 'mail'
   | 'lock'
-  | 'shield-check';
+  | 'shield-check'
+  | 'python'
+  | 'web-browser'
+  | 'book'
+  | 'eye'
+  | 'menu';
 
 export interface NavLinkItem {
   readonly id: string;
@@ -45,7 +50,8 @@ export interface GuildStatItem {
   readonly accent: 'green' | 'gold';
 }
 
-export type CodeTokenTone = 'comment-ice' | 'comment-coral' | 'comment-green' | 'keyword' | 'fn' | 'plain';
+export type CodeTokenTone =
+  'comment-ice' | 'comment-coral' | 'comment-green' | 'keyword' | 'fn' | 'plain';
 
 export interface BattleCodeToken {
   readonly text: string;

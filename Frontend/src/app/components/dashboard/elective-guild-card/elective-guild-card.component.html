@@ -1,0 +1,136 @@
+@let card = state();
+@let course = card.course;
+
+<article
+  class="h-full bg-[#181a2a] border-2 border-[#2f3142] hover:border-[#879486] pixel-shadow flex flex-col justify-between transition-colors"
+>
+  <div>
+    <!-- Card Header -->
+    <div
+      class="bg-[#121424] border-b border-[#2f3142] px-4 py-2.5 flex items-center justify-between gap-2"
+    >
+      <h3
+        class="font-display text-[10.5px] sm:text-[11.5px] tracking-[0.05em] text-[#e1e1f7] truncate"
+      >
+        [ {{ course.title }} ]
+      </h3>
+
+      @if (card.isUnlocked) {
+        <span
+          class="bg-[#10261a] border border-[#38b764] px-2 py-0.5 font-pixel text-[8.5px] text-[#63de86] shrink-0"
+        >
+          UNLOCKED
+        </span>
+      } @else {
+        <span
+          class="bg-[#2a1219] border border-[#ffb4ab]/50 px-2 py-0.5 font-pixel text-[8.5px] text-[#ffb4ab] shrink-0"
+        >
+          LOCKED
+        </span>
+      }
+    </div>
+
+    <!-- 16-Bit Dungeon Gate Illustration -->
+    <div
+      class="relative h-[168px] border-b border-[#2f3142] overflow-hidden flex items-end justify-center"
+      [class]="wallTintClass()"
+    >
+      <svg
+        viewBox="0 0 240 160"
+        class="w-full h-full"
+        preserveAspectRatio="xMidYMid slice"
+        shape-rendering="crispEdges"
+        aria-hidden="true"
+      >
+        <!-- Horizontal stone brick courses -->
+        <rect x="0" y="24" width="240" height="2" fill="#0b0d1c" fill-opacity="0.55" />
+        <rect x="0" y="54" width="240" height="2" fill="#0b0d1c" fill-opacity="0.55" />
+        <rect x="0" y="84" width="240" height="2" fill="#0b0d1c" fill-opacity="0.55" />
+        <rect x="0" y="114" width="240" height="2" fill="#0b0d1c" fill-opacity="0.55" />
+
+        <!-- Left & right stone pillars -->
+        <rect x="14" y="10" width="38" height="150" fill="#0b0d1c" fill-opacity="0.4" />
+        <rect x="188" y="10" width="38" height="150" fill="#0b0d1c" fill-opacity="0.4" />
+
+        <!-- Left glowing guild banner/torch -->
+        <rect x="26" y="34" width="14" height="58" [attr.fill]="torchOuterColor()" />
+        <rect x="30" y="40" width="6" height="36" [attr.fill]="torchInnerColor()" />
+
+        <!-- Right glowing guild banner/torch -->
+        <rect x="200" y="34" width="14" height="58" [attr.fill]="torchOuterColor()" />
+        <rect x="204" y="40" width="6" height="36" [attr.fill]="torchInnerColor()" />
+
+        <!-- Central dungeon archway -->
+        <rect x="74" y="40" width="92" height="120" fill="#0b0d1c" />
+        <rect x="86" y="28" width="68" height="16" fill="#0b0d1c" />
+
+        <!-- Gate bars -->
+        @if (!card.isUnlocked) {
+          <rect x="90" y="36" width="4" height="124" fill="#272939" />
+          <rect x="108" y="32" width="4" height="128" fill="#272939" />
+          <rect x="128" y="32" width="4" height="128" fill="#272939" />
+          <rect x="146" y="36" width="4" height="124" fill="#272939" />
+          <rect x="74" y="68" width="92" height="4" fill="#272939" />
+          <rect x="74" y="106" width="92" height="4" fill="#272939" />
+          <rect x="74" y="138" width="92" height="4" fill="#272939" />
+        }
+      </svg>
+
+      <!-- Center Padlock + Gate Level Plate -->
+      <div
+        class="absolute inset-0 flex flex-col items-center justify-center gap-2 pointer-events-none"
+      >
+        @if (!card.isUnlocked) {
+          <div
+            class="bg-[#0b0d1c]/90 border-2 border-[#879486] p-2.5 pixel-shadow-sm text-[#e1e1f7]"
+          >
+            <app-pixel-icon name="lock" [size]="24" />
+          </div>
+        } @else {
+          <div
+            class="bg-[#0b0d1c]/90 border-2 border-[#63de86] p-2.5 pixel-shadow-sm text-[#63de86]"
+          >
+            <app-pixel-icon name="shield-check" [size]="24" />
+          </div>
+        }
+        <span
+          class="bg-[#0b0d1c]/95 border border-[#3e4a3e] px-2.5 py-0.5 font-pixel text-[8.5px] tracking-[0.08em] text-[#bdcabb]"
+        >
+          LVL {{ requiredLevelLabel() }} GATE
+        </span>
+      </div>
+    </div>
+
+    <!-- Description + Lock Status -->
+    <div class="p-4 space-y-3">
+      <p class="font-code text-[11px] leading-relaxed text-[#bdcabb] uppercase min-h-[66px]">
+        {{ course.description }}
+      </p>
+
+      <div class="flex items-center gap-1.5 font-pixel text-[9px] tracking-[0.04em]">
+        @if (card.isUnlocked) {
+          <app-pixel-icon name="shield-check" [size]="12" class="text-[#63de86]" />
+          <span class="text-[#63de86]">STATUS: UNLOCKED · LEVEL {{ requiredLevelLabel() }}+</span>
+        } @else {
+          <app-pixel-icon name="lock" [size]="12" class="text-[#ffb4ab]" />
+          <span class="text-[#8a8ba0]">
+            STATUS: <strong class="text-[#f0bf69]">LOCKED</strong> · REACH LVL
+            {{ requiredLevelLabel() }}
+          </span>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer Syllabus Action -->
+  <div class="px-4 pb-4">
+    <button
+      type="button"
+      (click)="previewRequested.emit(course)"
+      class="w-full bg-[#101222] hover:bg-[#1f2238] border border-[#3e4a3e] hover:border-[#e1e1f7] py-2.5 px-3 font-pixel text-[10px] tracking-[0.06em] text-[#e1e1f7] inline-flex items-center justify-center gap-2 cursor-pointer transition-colors"
+    >
+      <app-pixel-icon name="book" [size]="13" />
+      <span>{{ course.ctaLabel }}</span>
+    </button>
+  </div>
+</article>

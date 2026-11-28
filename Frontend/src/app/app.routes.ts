@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { adminGuard } from './guards/auth.guard';
+import { adminGuard, authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
   {
@@ -23,6 +23,13 @@ export const routes: Routes = [
     title: 'Authenticating — ORION 16-Bit Realm',
     loadComponent: () =>
       import('./views/auth-callback/auth-callback.component').then((m) => m.AuthCallbackComponent),
+  },
+  {
+    path: 'home',
+    title: 'Choose Your Quest — ORION',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./views/log-home/log-home.component').then((m) => m.LogHomeComponent),
   },
   {
     path: 'adventurers',

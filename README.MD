@@ -101,19 +101,21 @@ El frontend es una aplicación **Angular 22.3** basada en **Standalone Component
 | Ruta | Vista (Lazy-Loaded) | Propósito |
 | :--- | :--- | :--- |
 | `/` | `HomeComponent` | Landing RPG: barra de navegación, héroe interactivo con arena de batalla, mapa de zonas, inventario del gremio, tabla comparativa y CTA Save-Point. |
+| `/home` | `LogHomeComponent` | Dashboard autenticado (`authGuard`) `CHOOSE YOUR QUEST`: topbar con racha, gemas, nivel y `@username` reales (`GET /api/auth/me`), barra lateral colapsable (`CURSOS`, `MARKET`, `PERFIL`, `LOG OUT`) y los 5 cursos reales (`Python Fundamentals`, `Fullstack App Design`, `ASP.NET Core`, `Next.js`, `NestJS`) con desbloqueo dinámico por nivel. |
 | `/login` | `LoginComponent` | Pantalla `[ SLOT 01: LOAD GAME ]` conectada a `POST /api/auth/login` (JWT) con asistente Pyxis en tiempo real y acceso a GitHub OAuth. |
 | `/register` | `RegisterComponent` | Creación de personaje (`RegisterCardComponent`) conectada a `POST /api/users/register`, con validación en vivo de las 4 runas de contraseña (`CipherRequirementsComponent`). |
-| `/auth/callback` | `AuthCallbackComponent` | Recepción de callback externo (`?token=...`), hidratación de sesión vía `GET /api/auth/me` y redirección al Roster. |
+| `/auth/callback` | `AuthCallbackComponent` | Recepción de callback externo (`?token=...`), hidratación de sesión vía `GET /api/auth/me` y redirección a `/home`. |
 | `/adventurers` | `AdventurersComponent` | Guild Roster: CRUD interactivo de aventureros conectado a `GET`, `PUT` y `DELETE /api/users`. |
 | `**` | Redirección a `/` | Fallback a la página principal. |
 
 ### Organización Modular de UI
 
+- **`components/dashboard/`:** `DashboardTopbarComponent`, `DashboardSidebarComponent`, `CourseTrackCardComponent`, `ElectiveGuildCardComponent`.
 - **`components/landing/`:** `NavbarComponent`, `HeroSectionComponent`, `BattleArenaComponent`, `QuestMapComponent`, `ZoneCardComponent`, `GuildInventoryComponent`, `QuestingComparisonComponent`, `SavePointCtaComponent`, `FooterComponent`.
 - **`components/auth/`:** `LoginCardComponent`, `RegisterCardComponent`, `CipherRequirementsComponent`, `FamiliarGuideCardComponent`.
 - **`components/shared/`:** Primitivas reutilizables `PixelIconComponent` y `RetroButtonComponent`.
 - **`services/`, `interceptors/`, `guards/` & `environments/`:** Un único `AuthService` centraliza `/api/auth` y `/api/users` contra `${environment.apiUrl}` (`https://orion-backend-yar4.onrender.com/api` en producción y `http://localhost:5092/api` en desarrollo local); `authInterceptor` adjunta automáticamente `Authorization: Bearer <token>` y limpia sesiones vencidas ante `401`.
-- **`models/` & `data/`:** Tipado estricto (`auth.models.ts`, `quest-landing.models.ts`, `user.models.ts`) y contenido estructurado (`quest-landing.data.ts`).
+- **`models/` & `data/`:** Tipado estricto (`auth.models.ts`, `course-catalog.models.ts`, `quest-landing.models.ts`, `user.models.ts`) y catálogos estructurados (`course-catalog.data.ts`, `quest-landing.data.ts`).
 
 ---
 

@@ -1,0 +1,66 @@
+<aside
+  aria-label="Orion dashboard menu"
+  class="h-full bg-[#0d0f1d] border-r border-[#2f3142] flex flex-col justify-between p-3 transition-all duration-150"
+  [class.w-[208px]]="!collapsed()"
+  [class.w-[72px]]="collapsed()"
+>
+  <div class="space-y-4">
+    <!-- Collapse Toggle -->
+    <button
+      type="button"
+      (click)="collapseToggled.emit()"
+      [attr.aria-label]="collapsed() ? 'Expand menu' : 'Collapse menu'"
+      class="w-full bg-[#101222] border border-[#2f3142] hover:border-[#63de86] px-2.5 py-2 font-pixel text-[9.5px] tracking-[0.06em] text-[#8a8ba0] hover:text-[#e1e1f7] cursor-pointer transition-colors truncate"
+    >
+      @if (collapsed()) {
+        [ ▸ ]
+      } @else {
+        [ ◂ COLLAPSE MENU ]
+      }
+    </button>
+
+    <!-- Primary Sections -->
+    <nav class="space-y-2.5" aria-label="Dashboard sections">
+      @for (item of navItems; track item.id) {
+        <button
+          type="button"
+          (click)="tabSelected.emit(item.id)"
+          [attr.aria-current]="activeTab() === item.id ? 'page' : null"
+          [title]="item.label"
+          class="w-full px-3 py-2.5 font-display text-[10px] tracking-[0.08em] text-left cursor-pointer transition-colors border-2"
+          [class.bg-[#38b764]]="activeTab() === item.id"
+          [class.text-[#00411c]]="activeTab() === item.id"
+          [class.border-black]="activeTab() === item.id"
+          [class.pixel-shadow-sm]="activeTab() === item.id"
+          [class.bg-[#121426]]="activeTab() !== item.id"
+          [class.text-[#bdcabb]]="activeTab() !== item.id"
+          [class.border-[#2f3142]]="activeTab() !== item.id"
+          [class.hover:border-[#63de86]]="activeTab() !== item.id"
+          [class.hover:text-[#e1e1f7]]="activeTab() !== item.id"
+          [class.text-center]="collapsed()"
+        >
+          {{ collapsed() ? item.shortLabel : item.label }}
+        </button>
+      }
+    </nav>
+  </div>
+
+  <!-- Bottom Logout Action -->
+  <div class="pt-4 border-t border-[#2f3142]">
+    <button
+      type="button"
+      (click)="logoutRequested.emit()"
+      [disabled]="loggingOut()"
+      title="Log out"
+      class="w-full bg-[#91000a] hover:bg-[#b5121d] disabled:opacity-50 border-2 border-black pixel-shadow-sm px-3 py-2.5 font-display text-[10px] tracking-[0.08em] text-[#ffe5e5] cursor-pointer transition-colors text-center"
+    >
+      @if (collapsed()) {
+        ✕
+      } @else if (loggingOut()) {
+        [ EXITING... ]
+      } @else {
+        [ LOG OUT ]
+      }
+    </button>
+  </div>
+</aside>

@@ -1,0 +1,437 @@
+<div class="min-h-screen bg-[#101222] text-[#e1e1f7] flex flex-col">
+  <app-dashboard-topbar
+    [user]="currentUser()"
+    (menuToggled)="toggleMenu()"
+    (profileSelected)="selectTab('perfil')"
+  />
+
+  <div class="flex-1 flex relative min-h-[calc(100vh-3.5rem)]">
+    <!-- Desktop Collapsible Sidebar -->
+    <div class="hidden lg:block shrink-0 sticky top-14 h-[calc(100vh-3.5rem)]">
+      <app-dashboard-sidebar
+        [activeTab]="activeTab()"
+        [collapsed]="sidebarCollapsed()"
+        [loggingOut]="loggingOut()"
+        (collapseToggled)="toggleDesktopCollapse()"
+        (tabSelected)="selectTab($event)"
+        (logoutRequested)="handleLogout()"
+      />
+    </div>
+
+    <!-- Mobile Slide-Over Sidebar Drawer -->
+    @if (mobileSidebarOpen()) {
+      <div class="lg:hidden fixed inset-0 z-50 flex">
+        <div class="relative z-10 h-full">
+          <app-dashboard-sidebar
+            [activeTab]="activeTab()"
+            [collapsed]="false"
+            [loggingOut]="loggingOut()"
+            (collapseToggled)="closeMobileSidebar()"
+            (tabSelected)="selectTab($event)"
+            (logoutRequested)="handleLogout()"
+          />
+        </div>
+        <button
+          type="button"
+          aria-label="Close navigation menu"
+          (click)="closeMobileSidebar()"
+          class="flex-1 bg-black/70 cursor-pointer"
+        ></button>
+      </div>
+    }
+
+    <!-- Main Dashboard Viewport -->
+    <main class="flex-1 min-w-0 px-4 sm:px-7 lg:px-10 py-6 sm:py-8">
+      <div class="max-w-[1060px] mx-auto space-y-8">
+        <!-- Mobile Stats Pill (mirrors topbar on compact screens) -->
+        <div
+          class="sm:hidden flex items-center justify-between bg-[#0b0d1c] border border-[#2f3142] px-3.5 py-2 font-pixel text-[10px]"
+        >
+          <span class="inline-flex items-center gap-1.5 text-[#f0bf69]">
+            <app-pixel-icon name="flame" [size]="13" />
+            <span>{{ mobileStreakText() }}</span>
+          </span>
+          <span class="inline-flex items-center gap-1.5 text-[#99cbff]">
+            <app-pixel-icon name="diamond" [size]="13" />
+            <span>{{ currentUser()?.gems ?? 0 }} GEMS</span>
+          </span>
+        </div>
+
+        @if (activeTab() === 'cursos') {
+          <!-- Hero Heading -->
+          <section class="space-y-2.5">
+            <div class="flex flex-wrap items-baseline gap-2.5">
+              <app-pixel-icon name="swords" [size]="22" class="text-[#f0bf69] self-center" />
+              <h1
+                class="font-display text-[17px] sm:text-[22px] tracking-[0.06em] text-white leading-tight"
+              >
+                CHOOSE YOUR QUEST
+              </h1>
+              <span class="font-pixel text-[10px] tracking-[0.08em] text-[#8a8ba0]">
+                (LEARNING PATHS)
+              </span>
+            </div>
+
+            <p
+              class="font-code text-[11px] sm:text-[12px] text-[#bdcabb] leading-relaxed uppercase"
+            >
+              SELECT YOUR DISCIPLINE TO BEGIN MICRO-LESSONS, CODE BATTLES, AND ALGORITHMIC BOSS
+              FIGHTS. PROGRESS EARNS XP, GEMS, AND UNLOCKS GUILD GATES.
+            </p>
+          </section>
+
+          <!-- 01 // Foundation Curriculum -->
+          <section aria-labelledby="section-foundation" class="space-y-4">
+            <div class="border-b border-[#2f3142] pb-2 flex flex-wrap items-center gap-2">
+              <h2
+                id="section-foundation"
+                class="font-display text-[11px] sm:text-[12.5px] tracking-[0.06em] flex flex-wrap items-center gap-2"
+              >
+                <span class="text-[#f0bf69]">[ 01 // FOUNDATION CURRICULUM ]</span>
+                <span class="text-white">CORE QUESTS</span>
+              </h2>
+            </div>
+
+            <div class="space-y-4">
+              @for (card of foundationCards(); track card.course.id) {
+                <app-course-track-card
+                  [state]="card"
+                  (actionSelected)="openCoursePreview($event)"
+                />
+              }
+            </div>
+          </section>
+
+          <!-- 02 // Intermediate Guilds -->
+          <section aria-labelledby="section-intermediate" class="space-y-3.5">
+            <div class="space-y-2">
+              <div class="border-b border-[#2f3142] pb-2 flex flex-wrap items-center gap-2">
+                <h2
+                  id="section-intermediate"
+                  class="font-display text-[11px] sm:text-[12.5px] tracking-[0.06em] flex flex-wrap items-center gap-2"
+                >
+                  <span class="text-[#f0bf69]">[ 02 // INTERMEDIATE GUILDS ]</span>
+                  <span class="text-[#8a8ba0]" aria-hidden="true">×</span>
+                  <span class="text-white">MEDIUM (WEB DESIGN AND BACKEND DEVELOPMENT)</span>
+                  <span class="text-[#99cbff]" aria-hidden="true">♦</span>
+                </h2>
+              </div>
+
+              <div class="flex flex-wrap items-center gap-3">
+                <span
+                  class="inline-block bg-[#10261a] border border-[#38b764] px-2.5 py-0.5 font-pixel text-[9px] tracking-[0.08em] text-[#63de86]"
+                >
+                  UNLOCKED / ACTIVE
+                </span>
+              </div>
+
+              <p class="font-code text-[11px] sm:text-[11.5px] text-[#bdcabb] uppercase">
+                MASTER MODERN CLIENT-SIDE ARCHITECTURE, UI/UX SYSTEMS, AND API INTEGRATION.
+              </p>
+            </div>
+
+            <div class="space-y-4">
+              @for (card of intermediateCards(); track card.course.id) {
+                <app-course-track-card
+                  [state]="card"
+                  (actionSelected)="openCoursePreview($event)"
+                />
+              }
+            </div>
+          </section>
+
+          <!-- 03 // Elective Guilds (Advanced Tracks) -->
+          <section aria-labelledby="section-elective" class="space-y-4">
+            <div class="space-y-2">
+              <div
+                class="border-b border-[#2f3142] pb-2 flex flex-wrap items-center justify-between gap-2.5"
+              >
+                <h2
+                  id="section-elective"
+                  class="font-display text-[11px] sm:text-[12.5px] tracking-[0.06em] text-white inline-flex items-center gap-2"
+                >
+                  <app-pixel-icon name="shield" [size]="16" class="text-[#f0bf69] shrink-0" />
+                  <span>ELECTIVE GUILDS (ADVANCED TRACKS)</span>
+                </h2>
+
+                @if (electivesUnlocked()) {
+                  <span
+                    class="bg-[#10261a] border border-[#38b764] px-2.5 py-1 font-pixel text-[9px] tracking-[0.06em] text-[#63de86]"
+                  >
+                    LEVEL {{ electiveRequiredLevelLabel }}+ PASS ACTIVE
+                  </span>
+                } @else {
+                  <span
+                    class="bg-[#181a2a] border border-[#3e4a3e] px-2.5 py-1 font-pixel text-[9px] tracking-[0.06em] text-[#f0bf69]"
+                  >
+                    REQUIRES LEVEL {{ electiveRequiredLevelLabel }} ADVENTURER PASS
+                  </span>
+                }
+              </div>
+
+              <p class="font-code text-[11px] sm:text-[11.5px] text-[#bdcabb] uppercase">
+                UNLOCK SPECIALIZED ENTERPRISE BACKEND ARCHITECTURE, FULL-STACK FRAMEWORKS, AND
+                HIGH-CONCURRENCY SYSTEMS UPON LEVELING UP.
+              </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+              @for (card of electiveCards(); track card.course.id) {
+                <app-elective-guild-card
+                  [state]="card"
+                  (previewRequested)="openCoursePreview($event)"
+                />
+              }
+            </div>
+          </section>
+        } @else if (activeTab() === 'perfil') {
+          <!-- Real Adventurer Profile Panel (hydrated from GET /api/auth/me) -->
+          <section aria-labelledby="profile-heading" class="space-y-6">
+            <div
+              class="border-b border-[#2f3142] pb-3 flex flex-wrap items-center justify-between gap-3"
+            >
+              <div class="flex items-center gap-2.5">
+                <app-pixel-icon name="user" [size]="18" class="text-[#63de86]" />
+                <h1
+                  id="profile-heading"
+                  class="font-display text-[15px] sm:text-[18px] tracking-[0.06em] text-white"
+                >
+                  [ ADVENTURER PROFILE ]
+                </h1>
+              </div>
+
+              <div class="flex flex-wrap items-center gap-2.5">
+                @if (isAdmin()) {
+                  <a
+                    routerLink="/adventurers"
+                    class="bg-[#181a2a] border border-[#3e4a3e] hover:border-[#63de86] px-3.5 py-2 font-pixel text-[10px] text-[#63de86] transition-colors"
+                  >
+                    [ GUILD ROSTER ]
+                  </a>
+                }
+                <button
+                  type="button"
+                  (click)="selectTab('cursos')"
+                  class="bg-[#272939] border border-[#879486] hover:border-[#e1e1f7] px-3.5 py-2 font-pixel text-[10px] text-[#e1e1f7] cursor-pointer transition-colors"
+                >
+                  [ BACK TO CURSOS ]
+                </button>
+              </div>
+            </div>
+
+            @if (currentUser(); as user) {
+              <div class="bg-[#181a2a] border-2 border-[#3e4a3e] pixel-shadow p-5 sm:p-6 space-y-6">
+                <div class="flex flex-wrap items-center gap-4 border-b border-[#2f3142] pb-5">
+                  @if (user.avatarUrl; as avatar) {
+                    <img
+                      [src]="avatar"
+                      [alt]="'@' + user.username"
+                      class="w-16 h-16 rounded-full border-2 border-[#63de86] object-cover"
+                    />
+                  } @else {
+                    <span
+                      class="w-16 h-16 rounded-full bg-[#38b764] border-2 border-black flex items-center justify-center text-[#00411c]"
+                    >
+                      <app-pixel-icon name="user" [size]="28" />
+                    </span>
+                  }
+
+                  <div class="min-w-0 space-y-1">
+                    <h2 class="font-display text-[14px] sm:text-[16px] text-white truncate">
+                      {{ fullDisplayName() }}
+                    </h2>
+                    <p class="font-code text-[13px] text-[#63de86]">&#64;{{ user.username }}</p>
+                    <p class="font-code text-[12px] text-[#8a8ba0] break-all">{{ user.email }}</p>
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 font-code">
+                  <div class="bg-[#101222] border border-[#2f3142] p-3.5">
+                    <span class="block font-pixel text-[9px] text-[#8a8ba0]">LEVEL</span>
+                    <span class="text-[18px] font-bold text-[#f0bf69]">
+                      LVL {{ user.currentLevel.toString().padStart(2, '0') }}
+                    </span>
+                  </div>
+                  <div class="bg-[#101222] border border-[#2f3142] p-3.5">
+                    <span class="block font-pixel text-[9px] text-[#8a8ba0]">TOTAL XP</span>
+                    <span class="text-[18px] font-bold text-[#63de86]">{{ user.totalXp }} XP</span>
+                  </div>
+                  <div class="bg-[#101222] border border-[#2f3142] p-3.5">
+                    <span class="block font-pixel text-[9px] text-[#8a8ba0]">GEMS</span>
+                    <span class="text-[18px] font-bold text-[#99cbff]">{{ user.gems }}</span>
+                  </div>
+                  <div class="bg-[#101222] border border-[#2f3142] p-3.5">
+                    <span class="block font-pixel text-[9px] text-[#8a8ba0]">CURRENT STREAK</span>
+                    <span class="text-[16px] font-bold text-[#f0bf69]">
+                      {{ user.currentStreak }} {{ user.currentStreak === 1 ? 'DAY' : 'DAYS' }}
+                    </span>
+                  </div>
+                  <div class="bg-[#101222] border border-[#2f3142] p-3.5">
+                    <span class="block font-pixel text-[9px] text-[#8a8ba0]">LONGEST STREAK</span>
+                    <span class="text-[16px] font-bold text-[#e1e1f7]">
+                      {{ user.longestStreak }} {{ user.longestStreak === 1 ? 'DAY' : 'DAYS' }}
+                    </span>
+                  </div>
+                  <div class="bg-[#101222] border border-[#2f3142] p-3.5">
+                    <span class="block font-pixel text-[9px] text-[#8a8ba0]">PLAN / ROLE</span>
+                    <span class="text-[14px] font-bold text-[#e1e1f7] uppercase">
+                      {{ user.planType }} · {{ user.role }}
+                    </span>
+                  </div>
+                </div>
+
+                <div
+                  class="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-[#2f3142] font-code text-[11px] text-[#8a8ba0]"
+                >
+                  <span>AUTH PROVIDER: {{ user.authProvider }}</span>
+                  <span>JOINED: {{ user.createdAt | date: 'mediumDate' }}</span>
+                </div>
+              </div>
+            } @else {
+              <div class="bg-[#181a2a] border-2 border-[#2f3142] p-8 text-center">
+                <p class="font-pixel text-[11px] text-[#8a8ba0]">
+                  LOADING ADVENTURER ARCHIVE FROM ORION API...
+                </p>
+              </div>
+            }
+          </section>
+        } @else {
+          <!-- Market Empty State (no hardcoded items or prices) -->
+          <section aria-labelledby="market-heading" class="space-y-6">
+            <div
+              class="border-b border-[#2f3142] pb-3 flex flex-wrap items-center justify-between gap-3"
+            >
+              <div class="flex items-center gap-2.5">
+                <app-pixel-icon name="diamond" [size]="18" class="text-[#99cbff]" />
+                <h1
+                  id="market-heading"
+                  class="font-display text-[15px] sm:text-[18px] tracking-[0.06em] text-white"
+                >
+                  [ GUILD MARKET ]
+                </h1>
+              </div>
+
+              <span
+                class="bg-[#0b0d1c] border border-[#2f3142] px-3 py-1.5 font-pixel text-[10px] text-[#99cbff]"
+              >
+                BALANCE: {{ currentUser()?.gems ?? 0 }} GEMS
+              </span>
+            </div>
+
+            <div
+              class="bg-[#181a2a] border-2 border-[#2f3142] pixel-shadow p-8 sm:p-10 text-center space-y-4"
+            >
+              <app-pixel-icon name="gold-bag" [size]="28" class="mx-auto text-[#f0bf69]" />
+              <h2 class="font-display text-[13px] text-[#e1e1f7]">MARKET INVENTORY COMING SOON</h2>
+              <p class="font-code text-[12px] text-[#bdcabb] max-w-lg mx-auto">
+                There are no items published in the Guild Market yet. Your real gem balance is
+                already synced with your Orion account.
+              </p>
+              <button
+                type="button"
+                (click)="selectTab('cursos')"
+                class="pixel-btn-primary px-5 py-2.5 font-display text-[10px] cursor-pointer"
+              >
+                [ RETURN TO CURSOS ]
+              </button>
+            </div>
+          </section>
+        }
+      </div>
+    </main>
+  </div>
+
+  <!-- Course Syllabus / Preview Modal -->
+  @if (selectedCourse(); as course) {
+    <div
+      class="fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="course-preview-title"
+      (click)="closeCoursePreview()"
+    >
+      <div
+        class="bg-[#181a2a] border-2 border-[#3e4a3e] pixel-shadow-lg max-w-lg w-full"
+        (click)="$event.stopPropagation()"
+      >
+        <div
+          class="bg-[#101222] border-b border-[#2f3142] px-4 py-3 flex items-center justify-between gap-2"
+        >
+          <h2
+            id="course-preview-title"
+            class="font-display text-[11px] sm:text-[12px] text-[#63de86] truncate"
+          >
+            [ {{ course.title }} ]
+          </h2>
+          <button
+            type="button"
+            (click)="closeCoursePreview()"
+            aria-label="Close course preview"
+            class="w-6 h-6 bg-[#91000a] hover:bg-[#b5121d] text-white font-code font-bold flex items-center justify-center cursor-pointer"
+          >
+            ×
+          </button>
+        </div>
+
+        <div class="p-5 sm:p-6 space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <span
+              class="bg-[#101222] border border-[#2f3142] px-2.5 py-1 font-pixel text-[9px] text-[#f0bf69]"
+            >
+              {{ course.rightBadge }}
+            </span>
+
+            @if (selectedCourseUnlocked()) {
+              <span
+                class="bg-[#10261a] border border-[#38b764] px-2.5 py-1 font-pixel text-[9px] text-[#63de86]"
+              >
+                UNLOCKED · LVL {{ course.requiredLevel.toString().padStart(2, '0') }}+
+              </span>
+            } @else {
+              <span
+                class="bg-[#2a1219] border border-[#ffb4ab]/50 px-2.5 py-1 font-pixel text-[9px] text-[#ffb4ab]"
+              >
+                LOCKED · REQUIRES LVL {{ course.requiredLevel.toString().padStart(2, '0') }}
+              </span>
+            }
+          </div>
+
+          <p class="font-code text-[12px] leading-relaxed text-[#e1e1f7] uppercase">
+            {{ course.description }}
+          </p>
+
+          <div class="space-y-2">
+            <span class="block font-pixel text-[9.5px] text-[#8a8ba0]">SYLLABUS TOPICS</span>
+            <div class="flex flex-wrap gap-2">
+              @for (topic of course.topics; track topic) {
+                <span
+                  class="bg-[#101222] border border-[#3e4a3e] px-2.5 py-1 font-pixel text-[9px] text-[#99cbff]"
+                >
+                  {{ topic }}
+                </span>
+              }
+            </div>
+          </div>
+
+          <div class="bg-[#101222] border border-[#2f3142] p-3.5 space-y-1">
+            <p class="font-pixel text-[9.5px] text-[#f0bf69]">NO QUESTS AVAILABLE YET</p>
+            <p class="font-code text-[11.5px] text-[#bdcabb]">
+              Challenges for this course have not been released yet. Once quests are added to the
+              backend, your progress and rewards will sync here automatically.
+            </p>
+          </div>
+
+          <div class="pt-1 flex justify-end">
+            <button
+              type="button"
+              (click)="closeCoursePreview()"
+              class="pixel-btn-primary px-5 py-2 font-display text-[10px] cursor-pointer"
+            >
+              [ CLOSE ]
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</div>

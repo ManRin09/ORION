@@ -63,7 +63,7 @@ export class AuthCallbackComponent implements OnInit {
 
     this.authService.completeExternalLogin(token, true).subscribe({
       next: () => {
-        void this.router.navigate(['/adventurers']);
+        void this.router.navigate(['/home']);
       },
       error: () => {
         this.authService.clearSession();

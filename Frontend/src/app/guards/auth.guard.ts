@@ -47,5 +47,5 @@ export const guestGuard: CanActivateFn = () => {
   }
 
   const router = inject(Router);
-  return router.createUrlTree(['/']);
+  return router.createUrlTree(['/home']);
 };

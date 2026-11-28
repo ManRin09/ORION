@@ -39,7 +39,7 @@ describe('AuthCallbackComponent', () => {
     TestBed.resetTestingModule();
   });
 
-  it('should persist token from query param, fetch GET /api/auth/me, and navigate to /adventurers', async () => {
+  it('should persist token from query param, fetch GET /api/auth/me, and navigate to /home', async () => {
     await TestBed.configureTestingModule({
       imports: [AuthCallbackComponent],
       providers: [
@@ -71,7 +71,7 @@ describe('AuthCallbackComponent', () => {
     expect(authService.isAuthenticated()).toBe(true);
     expect(authService.getToken()).toBe('github-jwt-token');
     expect(authService.currentUser()).toEqual(mockGitHubUser);
-    expect(navigateSpy).toHaveBeenCalledWith(['/adventurers']);
+    expect(navigateSpy).toHaveBeenCalledWith(['/home']);
   });
 
   it('should show error alert when callback contains error query param', async () => {

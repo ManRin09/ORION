@@ -1,0 +1,157 @@
+@let card = state();
+@let course = card.course;
+
+<article
+  class="bg-[#181a2a] border-2 pixel-shadow transition-colors"
+  [class.border-[#3e4a3e]]="!isBlue()"
+  [class.hover:border-[#63de86]]="!isBlue()"
+  [class.border-[#2c3b59]]="isBlue()"
+  [class.hover:border-[#60a5fa]]="isBlue()"
+>
+  <!-- Top Header Strip -->
+  <div
+    class="bg-[#121424] border-b border-[#2f3142] px-4 py-2.5 flex flex-wrap items-center justify-between gap-2"
+  >
+    <div class="flex items-center gap-2.5 min-w-0">
+      @if (course.letterCode; as code) {
+        <span
+          class="w-5 h-5 font-display text-[9px] flex items-center justify-center border border-black shrink-0"
+          [class.bg-[#38b764]]="!isBlue()"
+          [class.text-[#00411c]]="!isBlue()"
+          [class.bg-[#99cbff]]="isBlue()"
+          [class.text-[#0b0d1c]]="isBlue()"
+        >
+          {{ code }}
+        </span>
+      }
+      <h3 class="font-display text-[11px] sm:text-[13px] tracking-[0.06em] text-[#e1e1f7] truncate">
+        [ {{ course.title }} ]
+      </h3>
+    </div>
+
+    <span
+      class="bg-[#0b0d1c] border px-2.5 py-1 font-pixel text-[9px] tracking-[0.06em] uppercase"
+      [class.border-[#3e4a3e]]="!isBlue()"
+      [class.text-[#63de86]]="!isBlue()"
+      [class.border-[#2c3b59]]="isBlue()"
+      [class.text-[#99cbff]]="isBlue()"
+    >
+      {{ course.rightBadge }}
+    </span>
+  </div>
+
+  <!-- Main Content -->
+  <div class="p-4 sm:p-5 flex flex-col sm:flex-row gap-5">
+    <!-- Left Course Emblem -->
+    <div
+      class="relative w-[108px] h-[108px] bg-[#0b0d1c] border border-[#2f3142] flex items-center justify-center shrink-0 self-start"
+    >
+      @if (course.emblemKind === 'python') {
+        <app-pixel-icon name="python" [size]="56" />
+      } @else {
+        <app-pixel-icon name="web-browser" [size]="56" />
+      }
+
+      @if (course.emblemBadge; as badge) {
+        <span
+          class="absolute -bottom-2 -right-2 px-1.5 py-0.5 border border-black font-pixel text-[8.5px] font-bold leading-tight"
+          [class.bg-[#38b764]]="!isBlue()"
+          [class.text-[#00411c]]="!isBlue()"
+          [class.bg-[#60a5fa]]="isBlue()"
+          [class.text-[#0b0d1c]]="isBlue()"
+        >
+          {{ badge }}
+        </span>
+      }
+    </div>
+
+    <!-- Right Details + Segmented Progress -->
+    <div class="flex-1 min-w-0 space-y-3.5">
+      <p class="font-code text-[11.5px] sm:text-[12px] leading-relaxed text-[#e1e1f7] uppercase">
+        {{ course.description }}
+      </p>
+
+      <!-- Topic Pills -->
+      <div class="flex flex-wrap gap-2">
+        @for (topic of course.topics; track topic) {
+          <span
+            class="bg-[#101222] border px-2 py-0.5 font-pixel text-[9px] tracking-[0.04em]"
+            [class.border-[#3e4a3e]]="!isBlue()"
+            [class.text-[#f0bf69]]="!isBlue()"
+            [class.border-[#2c3b59]]="isBlue()"
+            [class.text-[#99cbff]]="isBlue()"
+          >
+            {{ topic }}
+          </span>
+        }
+      </div>
+
+      <!-- Segmented Progress Bar -->
+      <div class="space-y-1.5 pt-1">
+        <div class="flex flex-wrap items-center justify-between gap-2 font-pixel text-[9.5px]">
+          <span [class.text-[#63de86]]="!isBlue()" [class.text-[#99cbff]]="isBlue()">
+            {{ progressStatusLabel() }}
+          </span>
+          <span class="text-[#8a8ba0]">
+            {{ rewardStatusLabel() }}
+          </span>
+        </div>
+
+        <div
+          class="grid grid-cols-10 gap-1"
+          role="progressbar"
+          [attr.aria-valuenow]="card.progressPercent"
+          aria-valuemin="0"
+          aria-valuemax="100"
+          [attr.aria-label]="course.title + ' completion progress'"
+        >
+          @for (filled of card.segments; track $index) {
+            <span
+              class="h-2.5 border transition-colors"
+              [class.bg-[#38b764]]="filled && !isBlue()"
+              [class.border-[#63de86]]="filled && !isBlue()"
+              [class.bg-[#3b82f6]]="filled && isBlue()"
+              [class.border-[#99cbff]]="filled && isBlue()"
+              [class.bg-[#0b0d1c]]="!filled"
+              [class.border-[#2f3142]]="!filled"
+            ></span>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Action Strip -->
+  <div
+    class="border-t border-[#2f3142] bg-[#121424]/70 px-4 sm:px-5 py-3 flex flex-wrap items-center justify-between gap-3"
+  >
+    @if (!isBlue()) {
+      <button
+        type="button"
+        (click)="actionSelected.emit(course)"
+        class="pixel-btn-primary px-5 py-2 font-display text-[10px] tracking-[0.06em] inline-flex items-center gap-2 cursor-pointer"
+      >
+        <span aria-hidden="true">▸</span>
+        <span>{{ primaryButtonLabel() }}</span>
+      </button>
+
+      <span class="font-pixel text-[9.5px] text-[#8a8ba0]">
+        LVL {{ course.requiredLevel.toString().padStart(2, '0') }}+ CORE TRACK
+      </span>
+    } @else {
+      <span class="inline-flex items-center gap-2 font-pixel text-[10px] text-[#99cbff]">
+        <span class="w-2.5 h-2.5 bg-[#3b82f6] inline-block" aria-hidden="true"></span>
+        <span>ORBIT READY</span>
+      </span>
+
+      <button
+        type="button"
+        (click)="actionSelected.emit(course)"
+        class="bg-[#1d63ff] hover:bg-[#3174ff] active:translate-y-[1px] text-white border-2 border-black shadow-[0_3px_0_0_#0f348c] px-5 py-2 font-display text-[10px] tracking-[0.06em] inline-flex items-center gap-2 cursor-pointer transition-colors"
+      >
+        <app-pixel-icon name="eye" [size]="14" />
+        <span>{{ primaryButtonLabel() }}</span>
+      </button>
+    }
+  </div>
+</article>
