@@ -78,6 +78,23 @@ public sealed class UsersController(IUserService userService) : ControllerBase
     }
 
     /// <summary>
+    /// Updates the authorization role ("User" or "Admin") for an active adventurer.
+    /// </summary>
+    [HttpPut("{id:guid}/role")]
+    [EndpointSummary("Update adventurer role")]
+    [ProducesResponseType<UserResponse>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<UserResponse>> UpdateRole(
+        Guid id,
+        [FromBody] UpdateUserRoleRequest request,
+        CancellationToken cancellationToken)
+    {
+        var updatedUser = await userService.UpdateRoleAsync(id, request, cancellationToken);
+        return Ok(updatedUser);
+    }
+
+    /// <summary>
     /// Soft-deletes (deactivates) an adventurer account while preserving historical records.
     /// </summary>
     [HttpDelete("{id:guid}")]

@@ -219,4 +219,31 @@ public sealed class UserServiceTests
 
         await Assert.ThrowsAsync<UserNotFoundException>(() => _sut.SoftDeleteAsync(missingId));
     }
+
+    [Fact]
+    public async Task UpdateRoleAsync_WithValidAdminRole_UpdatesUserRoleAndSaves()
+    {
+        var user = User.CreateLocal(
+            "Juan",
+            "Maldonado",
+            "juanjosemn160@gmail.com",
+            "juanjo2409",
+            "hash",
+            DateTime.UtcNow);
+
+        _userRepository.GetByIdAsync(user.Id, Arg.Any<CancellationToken>()).Returns(user);
+
+        var response = await _sut.UpdateRoleAsync(user.Id, new UpdateUserRoleRequest("Admin"));
+
+        Assert.Equal(nameof(UserRole.Admin), response.Role);
+        Assert.Equal(UserRole.Admin, user.Role);
+        await _userRepository.Received(1).SaveChangesAsync(Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task UpdateRoleAsync_WithInvalidRole_ThrowsDomainException()
+    {
+        await Assert.ThrowsAsync<DomainException>(() =>
+            _sut.UpdateRoleAsync(Guid.NewGuid(), new UpdateUserRoleRequest("SuperWizard")));
+    }
 }

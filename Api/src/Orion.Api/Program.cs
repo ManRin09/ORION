@@ -4,6 +4,10 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using Orion.Api.Middlewares;
 using Orion.Application;
+using Orion.Application.Interfaces;
+using Orion.Domain.Entities;
+using Orion.Domain.Enums;
+using Orion.Domain.Interfaces;
 using Orion.Infrastructure;
 using Orion.Infrastructure.Security;
 
@@ -110,7 +114,69 @@ app.MapGet("/health", () => Results.Ok(new { status = "Healthy" }))
     .WithTags("Health")
     .WithSummary("Service health check");
 
+await SeedDefaultAdminAsync(app.Services);
+
 app.Run();
+
+static async Task SeedDefaultAdminAsync(IServiceProvider services)
+{
+    const string adminEmail = "juanjosemn160@gmail.com";
+    const string adminUsername = "juanjo2409";
+    const string adminFirstName = "Juan";
+    const string adminMiddleName = "Maldonado";
+    const string adminDefaultPassword = "Juan0811@";
+
+    using var scope = services.CreateScope();
+    var logger = scope.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("AdminSeeder");
+
+    try
+    {
+        var userRepository = scope.ServiceProvider.GetRequiredService<IUserRepository>();
+        var passwordHasher = scope.ServiceProvider.GetRequiredService<IPasswordHasher>();
+
+        var existingAdmin = await userRepository.GetByEmailAsync(adminEmail);
+        if (existingAdmin is not null)
+        {
+            if (existingAdmin.Role != UserRole.Admin)
+            {
+                existingAdmin.ChangeRole(UserRole.Admin);
+                await userRepository.SaveChangesAsync();
+                logger.LogInformation("Promoted adventurer {Email} to Admin role.", adminEmail);
+            }
+
+            return;
+        }
+
+        if (await userRepository.ExistsByEmailAsync(adminEmail))
+        {
+            return;
+        }
+
+        var username = await userRepository.ExistsByUsernameAsync(adminUsername)
+            ? $"{adminUsername}_admin"
+            : adminUsername;
+
+        var utcNow = DateTime.UtcNow;
+        var adminUser = User.CreateLocal(
+            firstName: adminFirstName,
+            middleName: adminMiddleName,
+            email: adminEmail,
+            username: username,
+            passwordHash: passwordHasher.Hash(adminDefaultPassword),
+            acceptedTermsAtUtc: utcNow,
+            utcNow: utcNow);
+
+        adminUser.ChangeRole(UserRole.Admin, utcNow);
+
+        await userRepository.AddAsync(adminUser);
+        await userRepository.SaveChangesAsync();
+        logger.LogInformation("Seeded default Admin adventurer {Email} (@{Username}).", adminEmail, username);
+    }
+    catch (Exception exception)
+    {
+        logger.LogWarning(exception, "Skipped default Admin seed check on startup.");
+    }
+}
 
 static string[] ResolveAllowedOrigins(IConfiguration configuration)
 {

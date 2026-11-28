@@ -165,6 +165,22 @@ public sealed class User
     }
 
     /// <summary>
+    /// Updates the authorization role (e.g. User or Admin) for an active adventurer.
+    /// </summary>
+    public void ChangeRole(UserRole newRole, DateTime? utcNow = null)
+    {
+        EnsureActive();
+
+        if (!Enum.IsDefined(newRole))
+        {
+            throw new DomainException("Invalid adventurer role.");
+        }
+
+        Role = newRole;
+        UpdatedAt = EnsureUtc(utcNow ?? DateTime.UtcNow);
+    }
+
+    /// <summary>
     /// Links an external GitHub identifier to an existing active account.
     /// </summary>
     public void LinkGitHub(string gitHubId, string? avatarUrl = null, DateTime? utcNow = null)

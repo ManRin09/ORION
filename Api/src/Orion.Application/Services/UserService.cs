@@ -7,6 +7,7 @@ using Orion.Application.DTOs.Common;
 using Orion.Application.DTOs.Users;
 using Orion.Application.Interfaces;
 using Orion.Domain.Entities;
+using Orion.Domain.Enums;
 using Orion.Domain.Exceptions;
 using Orion.Domain.Interfaces;
 
@@ -121,6 +122,29 @@ public sealed partial class UserService(
             username: request.Username,
             avatarUrl: request.AvatarUrl);
 
+        await userRepository.SaveChangesAsync(cancellationToken);
+
+        return UserResponse.FromEntity(user);
+    }
+
+    public async Task<UserResponse> UpdateRoleAsync(
+        Guid id,
+        UpdateUserRoleRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+
+        if (string.IsNullOrWhiteSpace(request.Role) ||
+            !Enum.TryParse<UserRole>(request.Role.Trim(), ignoreCase: true, out var parsedRole) ||
+            !Enum.IsDefined(parsedRole))
+        {
+            throw new DomainException("Role must be either 'User' or 'Admin'.");
+        }
+
+        var user = await userRepository.GetByIdAsync(id, cancellationToken)
+            ?? throw new UserNotFoundException(id);
+
+        user.ChangeRole(parsedRole);
         await userRepository.SaveChangesAsync(cancellationToken);
 
         return UserResponse.FromEntity(user);

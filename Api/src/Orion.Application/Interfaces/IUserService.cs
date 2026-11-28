@@ -24,5 +24,10 @@ public interface IUserService
         UpdateUserProfileRequest request,
         CancellationToken cancellationToken = default);
 
+    Task<UserResponse> UpdateRoleAsync(
+        Guid id,
+        UpdateUserRoleRequest request,
+        CancellationToken cancellationToken = default);
+
     Task SoftDeleteAsync(Guid id, CancellationToken cancellationToken = default);
 }
