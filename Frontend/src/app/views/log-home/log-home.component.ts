@@ -75,7 +75,7 @@ export class LogHomeComponent implements OnInit {
 
   protected readonly sidebarCollapsed = signal<boolean>(false);
   protected readonly mobileSidebarOpen = signal<boolean>(false);
-  protected readonly activeTab = signal<DashboardNavTab>('cursos');
+  protected readonly activeTab = signal<DashboardNavTab>('courses');
   protected readonly loggingOut = signal<boolean>(false);
   protected readonly selectedCourse = signal<CourseDefinition | null>(null);
 
@@ -94,6 +94,14 @@ export class LogHomeComponent implements OnInit {
 
   protected readonly userLevel = computed(() => this.currentUser()?.currentLevel ?? 1);
 
+  protected readonly formattedUserLevel = computed(() =>
+    this.userLevel().toString().padStart(2, '0'),
+  );
+
+  protected readonly formattedNextLevel = computed(() =>
+    (this.userLevel() + 1).toString().padStart(2, '0'),
+  );
+
   protected readonly electivesUnlocked = computed(
     () => this.userLevel() >= ELECTIVE_REQUIRED_LEVEL,
   );
@@ -109,6 +117,14 @@ export class LogHomeComponent implements OnInit {
   protected readonly electiveCards = computed<readonly CourseCardState[]>(() =>
     ELECTIVE_GUILD_COURSES.map((course) => buildCourseCardState(course, this.userLevel())),
   );
+
+  protected readonly primaryFoundationCard = computed(() => this.foundationCards()[0]);
+
+  protected readonly xpProgressSegments = computed<readonly boolean[]>(() => {
+    const xp = this.currentUser()?.totalXp ?? 0;
+    const filled = xp > 0 ? Math.min(PROGRESS_SEGMENT_COUNT, Math.max(1, Math.floor(xp / 100))) : 0;
+    return Array.from({ length: PROGRESS_SEGMENT_COUNT }, (_, idx) => idx < filled);
+  });
 
   protected readonly selectedCourseUnlocked = computed(() => {
     const course = this.selectedCourse();
@@ -138,7 +154,7 @@ export class LogHomeComponent implements OnInit {
   }
 
   protected toggleMenu(): void {
-    if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+    if (typeof window !== 'undefined' && window.innerWidth < 768) {
       this.mobileSidebarOpen.update((open) => !open);
       return;
     }

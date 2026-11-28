@@ -9,10 +9,10 @@ interface SidebarNavItem {
 }
 
 const SIDEBAR_ITEMS: readonly SidebarNavItem[] = [
-  { id: 'cursos', label: '[ CURSOS ]', shortLabel: 'C' },
-  { id: 'market', label: '[ MARKET ]', shortLabel: 'M' },
-  { id: 'perfil', label: '[ PERFIL ]', shortLabel: 'P' },
-  { id: 'admin', label: '[ ADMIN PANEL ]', shortLabel: 'A', adminOnly: true },
+  { id: 'courses', label: '[ COURSES ]', shortLabel: '[ C ]' },
+  { id: 'market', label: '[ MARKET ]', shortLabel: '[ M ]' },
+  { id: 'profile', label: '[ PROFILE ]', shortLabel: '[ P ]' },
+  { id: 'admin', label: '[ ADMIN PANEL ]', shortLabel: '[ A ]', adminOnly: true },
 ];
 
 @Component({

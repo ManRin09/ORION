@@ -102,6 +102,13 @@ describe('LogHomeComponent', () => {
     progressBars.forEach((bar) => {
       expect(bar.getAttribute('aria-valuenow')).toBe('0');
     });
+
+    const imgSrcs = Array.from(element.querySelectorAll('img')).map((img) =>
+      img.getAttribute('src'),
+    );
+    expect(imgSrcs).toContain('Favicom2.png');
+    expect(imgSrcs).toContain('Python%20logo.png');
+    expect(imgSrcs).toContain('Logo%20chrome.png');
   });
 
   it('should lock elective guilds below level 5 and unlock them dynamically at level 5+', async () => {
@@ -129,7 +136,7 @@ describe('LogHomeComponent', () => {
     expect(unlockedText).not.toContain('REQUIRES LEVEL 05 ADVENTURER PASS');
   });
 
-  it('should toggle sidebar collapse and switch between CURSOS, PERFIL, and MARKET tabs', async () => {
+  it('should toggle sidebar collapse and switch between COURSES, PROFILE, and MARKET tabs', async () => {
     const fixture = TestBed.createComponent(LogHomeComponent);
     fixture.detectChanges();
     httpTesting.expectOne(`${environment.apiUrl}/auth/me`).flush(createMockUser());
@@ -152,13 +159,14 @@ describe('LogHomeComponent', () => {
     await fixture.whenStable();
     expect(element.textContent).toContain('[ ◂ COLLAPSE MENU ]');
 
-    const perfilBtn = Array.from(element.querySelectorAll('button')).find((b) =>
-      b.textContent?.includes('[ PERFIL ]'),
+    const profileBtn = Array.from(element.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('[ PROFILE ]'),
     );
-    perfilBtn?.click();
+    profileBtn?.click();
     await fixture.whenStable();
 
-    expect(element.textContent).toContain('[ ADVENTURER PROFILE ]');
+    expect(element.textContent).toContain('EXP PROGRESS');
+    expect(element.textContent).toContain('CHARACTER ATTRIBUTES & ACCOUNT');
     expect(element.textContent).toContain('Elena Vance');
     expect(element.textContent).toContain('elena@orion.realm');
     expect(element.textContent).toContain('120 XP');
@@ -246,7 +254,11 @@ describe('LogHomeComponent', () => {
         accessToken: 'jwt-admin-token',
         expiresAtUtc: new Date(Date.now() + 60_000).toISOString(),
         rememberTerminal: true,
-        user: createMockUser({ role: 'Admin', username: 'juanjo2409', email: 'juanjosemn160@gmail.com' }),
+        user: createMockUser({
+          role: 'Admin',
+          username: 'juanjo2409',
+          email: 'juanjosemn160@gmail.com',
+        }),
       }),
     );
 
@@ -254,7 +266,9 @@ describe('LogHomeComponent', () => {
     fixture.detectChanges();
     httpTesting
       .expectOne(`${environment.apiUrl}/auth/me`)
-      .flush(createMockUser({ role: 'Admin', username: 'juanjo2409', email: 'juanjosemn160@gmail.com' }));
+      .flush(
+        createMockUser({ role: 'Admin', username: 'juanjo2409', email: 'juanjosemn160@gmail.com' }),
+      );
     await fixture.whenStable();
 
     const element = fixture.nativeElement as HTMLElement;
@@ -272,10 +286,38 @@ describe('LogHomeComponent', () => {
       activeVisitorsLast24Hours: 5,
       totalRegisteredUsers: 3,
       modules: [
-        { slug: 'python', title: 'Python', orderIndex: 1, uniqueStarts: 3, uniqueCompletions: 2, completionRatePercent: 66.67 },
-        { slug: 'html-css', title: 'HTML & CSS', orderIndex: 2, uniqueStarts: 1, uniqueCompletions: 0, completionRatePercent: 0 },
-        { slug: 'js', title: 'JavaScript', orderIndex: 3, uniqueStarts: 0, uniqueCompletions: 0, completionRatePercent: 0 },
-        { slug: 'postgres', title: 'PostgreSQL', orderIndex: 4, uniqueStarts: 0, uniqueCompletions: 0, completionRatePercent: 0 },
+        {
+          slug: 'python',
+          title: 'Python',
+          orderIndex: 1,
+          uniqueStarts: 3,
+          uniqueCompletions: 2,
+          completionRatePercent: 66.67,
+        },
+        {
+          slug: 'html-css',
+          title: 'HTML & CSS',
+          orderIndex: 2,
+          uniqueStarts: 1,
+          uniqueCompletions: 0,
+          completionRatePercent: 0,
+        },
+        {
+          slug: 'js',
+          title: 'JavaScript',
+          orderIndex: 3,
+          uniqueStarts: 0,
+          uniqueCompletions: 0,
+          completionRatePercent: 0,
+        },
+        {
+          slug: 'postgres',
+          title: 'PostgreSQL',
+          orderIndex: 4,
+          uniqueStarts: 0,
+          uniqueCompletions: 0,
+          completionRatePercent: 0,
+        },
       ],
       usersProgress: [
         {

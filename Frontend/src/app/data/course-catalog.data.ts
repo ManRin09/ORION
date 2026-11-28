@@ -9,6 +9,7 @@ export const FOUNDATION_COURSES: readonly CourseDefinition[] = [
     tier: 'foundation',
     accent: 'green',
     emblemKind: 'python',
+    emblemImageSrc: 'Python%20logo.png',
     emblemBadge: 'PY 3',
     description:
       'MASTER VARIABLES, LOOPS, FUNCTIONS, AND DATA STRUCTURES THROUGH 5-MINUTE CODING BATTLES AND SYNTAX DUNGEONS.',
@@ -28,6 +29,7 @@ export const INTERMEDIATE_COURSES: readonly CourseDefinition[] = [
     tier: 'intermediate',
     accent: 'blue',
     emblemKind: 'web',
+    emblemImageSrc: 'Logo%20chrome.png',
     emblemBadge: '[ CHROME / WEB ]',
     description:
       'BUILD INTERACTIVE INTERFACES, RESPONSIVE DESIGN SYSTEMS, REACTIVE STATE ENGINES, DOM LOGIC, AND PRODUCTION CLIENT APPLICATIONS.',

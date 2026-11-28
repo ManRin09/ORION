@@ -101,7 +101,7 @@ El frontend es una aplicación **Angular 22.3** basada en **Standalone Component
 | Ruta | Vista (Lazy-Loaded) | Propósito |
 | :--- | :--- | :--- |
 | `/` | `HomeComponent` | Landing RPG: barra de navegación, héroe interactivo con arena de batalla, mapa de zonas, inventario del gremio, tabla comparativa y CTA Save-Point. |
-| `/home` | `LogHomeComponent` | Dashboard autenticado (`authGuard`) `CHOOSE YOUR QUEST`: topbar con racha, gemas, nivel y `@username` reales (`GET /api/auth/me`), barra lateral colapsable (`CURSOS`, `MARKET`, `PERFIL`, `LOG OUT`) y los 5 cursos reales (`Python Fundamentals`, `Fullstack App Design`, `ASP.NET Core`, `Next.js`, `NestJS`) con desbloqueo dinámico por nivel. |
+| `/home` | `LogHomeComponent` | Dashboard autenticado (`authGuard`) `CHOOSE YOUR QUEST`: topbar con racha, gemas, nivel y `@username` reales (`GET /api/auth/me`), barra lateral fija colapsable (`COURSES`, `MARKET`, `PROFILE`, `LOG OUT`) y los 5 cursos reales (`Python Fundamentals`, `Fullstack App Design`, `ASP.NET Core`, `Next.js`, `NestJS`) con desbloqueo dinámico por nivel. |
 | `/login` | `LoginComponent` | Pantalla `[ SLOT 01: LOAD GAME ]` conectada a `POST /api/auth/login` (JWT) con asistente Pyxis en tiempo real y acceso a GitHub OAuth. |
 | `/register` | `RegisterComponent` | Creación de personaje (`RegisterCardComponent`) conectada a `POST /api/users/register`, con validación en vivo de las 4 runas de contraseña (`CipherRequirementsComponent`). |
 | `/auth/callback` | `AuthCallbackComponent` | Recepción de callback externo (`?token=...`), hidratación de sesión vía `GET /api/auth/me` y redirección a `/home`. |

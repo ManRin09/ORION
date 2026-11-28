@@ -1,16 +1,16 @@
 <aside
   aria-label="Orion dashboard menu"
-  class="h-full bg-[#0d0f1d] border-r border-[#2f3142] flex flex-col justify-between p-3 transition-all duration-150"
-  [class.w-[208px]]="!collapsed()"
+  class="h-full bg-[#0b0d19] border-r border-[#242942] shadow-[6px_0_24px_rgba(0,0,0,0.48)] flex flex-col justify-between p-3.5 transition-[width] duration-200 ease-out select-none overflow-y-auto"
+  [class.w-[228px]]="!collapsed()"
   [class.w-[72px]]="collapsed()"
 >
   <div class="space-y-4">
-    <!-- Collapse Toggle -->
+    <!-- Collapse / Expand Toggle -->
     <button
       type="button"
       (click)="collapseToggled.emit()"
       [attr.aria-label]="collapsed() ? 'Expand menu' : 'Collapse menu'"
-      class="w-full bg-[#101222] border border-[#2f3142] hover:border-[#63de86] px-2.5 py-2 font-pixel text-[9.5px] tracking-[0.06em] text-[#8a8ba0] hover:text-[#e1e1f7] cursor-pointer transition-colors truncate"
+      class="w-full h-9 bg-[#121629] border border-[#323856] shadow-[0_3px_0_0_#06070f] hover:border-[#4de083] hover:bg-[#171c33] hover:text-white active:translate-y-[1px] px-2 font-pixel text-[10px] tracking-[0.06em] text-[#9ea6c4] flex items-center justify-center cursor-pointer transition-all duration-150 whitespace-nowrap"
     >
       @if (collapsed()) {
         [ ▸ ]
@@ -19,43 +19,64 @@
       }
     </button>
 
-    <!-- Primary Sections -->
+    <div class="border-t border-[#1e2338]"></div>
+
+    <!-- Primary Sections (clean text buttons matching LogHome.png & User.png) -->
     <nav class="space-y-2.5" aria-label="Dashboard sections">
       @for (item of navItems(); track item.id) {
+        @let isActive = activeTab() === item.id;
         <button
           type="button"
           (click)="tabSelected.emit(item.id)"
-          [attr.aria-current]="activeTab() === item.id ? 'page' : null"
+          [attr.aria-current]="isActive ? 'page' : null"
+          [attr.aria-label]="item.label"
           [title]="item.label"
-          class="w-full px-3 py-2.5 font-display text-[10px] tracking-[0.08em] text-left cursor-pointer transition-colors border-2"
-          [class.bg-[#38b764]]="activeTab() === item.id"
-          [class.text-[#00411c]]="activeTab() === item.id"
-          [class.border-black]="activeTab() === item.id"
-          [class.pixel-shadow-sm]="activeTab() === item.id"
-          [class.bg-[#121426]]="activeTab() !== item.id"
-          [class.text-[#bdcabb]]="activeTab() !== item.id"
-          [class.border-[#2f3142]]="activeTab() !== item.id"
-          [class.hover:border-[#63de86]]="activeTab() !== item.id"
-          [class.hover:text-[#e1e1f7]]="activeTab() !== item.id"
-          [class.text-center]="collapsed()"
+          class="w-full h-11 font-pixel text-[12px] tracking-[0.08em] cursor-pointer transition-all duration-150 flex items-center whitespace-nowrap"
+          [class.px-3.5]="!collapsed()"
+          [class.justify-start]="!collapsed()"
+          [class.justify-center]="collapsed()"
+          [class.bg-[#38b764]]="isActive"
+          [class.text-[#05170c]]="isActive"
+          [class.border-t-2]="isActive"
+          [class.border-t-[#7ef0a4]]="isActive"
+          [class.border-x]="isActive"
+          [class.border-x-[#2a8f4d]]="isActive"
+          [class.border-b-4]="isActive"
+          [class.border-b-[#195c31]]="isActive"
+          [class.shadow-[0_6px_16px_rgba(56,183,100,0.25)]]="isActive"
+          [class.bg-[#111426]]="!isActive"
+          [class.text-[#cfd6ee]]="!isActive"
+          [class.border]="!isActive"
+          [class.border-[#2c3250]]="!isActive"
+          [class.shadow-[0_3px_0_0_#06070f]]="!isActive"
+          [class.hover:border-[#4de083]]="!isActive"
+          [class.hover:bg-[#191e36]]="!isActive"
+          [class.hover:text-white]="!isActive"
+          [class.hover:-translate-y-[1px]]="!isActive"
+          [class.active:translate-y-[1px]]="!isActive"
         >
-          {{ collapsed() ? item.shortLabel : item.label }}
+          @if (collapsed()) {
+            <span>{{ item.shortLabel }}</span>
+          } @else {
+            <span>{{ item.label }}</span>
+          }
         </button>
       }
     </nav>
   </div>
 
-  <!-- Bottom Logout Action -->
-  <div class="pt-4 border-t border-[#2f3142]">
+  <!-- Pinned Bottom Logout Action -->
+  <div class="pt-4 border-t border-[#23273d]">
     <button
       type="button"
       (click)="logoutRequested.emit()"
       [disabled]="loggingOut()"
+      aria-label="Log out"
       title="Log out"
-      class="w-full bg-[#91000a] hover:bg-[#b5121d] disabled:opacity-50 border-2 border-black pixel-shadow-sm px-3 py-2.5 font-display text-[10px] tracking-[0.08em] text-[#ffe5e5] cursor-pointer transition-colors text-center"
+      class="w-full h-11 bg-[#99111b] hover:bg-[#b81622] hover:-translate-y-[1px] active:translate-y-[2px] active:border-b-2 disabled:opacity-50 border-t-2 border-t-[#e04f5a]/60 border-x border-x-[#6b0a11] border-b-4 border-b-[#4a050a] shadow-[0_6px_18px_rgba(153,17,27,0.35)] px-3 font-pixel text-[12px] tracking-[0.1em] text-white flex items-center justify-center cursor-pointer transition-all duration-150 whitespace-nowrap"
     >
       @if (collapsed()) {
-        ✕
+        [ X ]
       } @else if (loggingOut()) {
         [ EXITING... ]
       } @else {
