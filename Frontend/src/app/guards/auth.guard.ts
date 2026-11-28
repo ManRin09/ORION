@@ -18,6 +18,26 @@ export const authGuard: CanActivateFn = (_route, state) => {
 };
 
 /**
+ * Protects administrative routes requiring an authenticated Admin session.
+ */
+export const adminGuard: CanActivateFn = (_route, state) => {
+  const authService = inject(AuthService);
+  const router = inject(Router);
+
+  if (!authService.isAuthenticated()) {
+    return router.createUrlTree(['/login'], {
+      queryParams: { returnUrl: state.url },
+    });
+  }
+
+  if (authService.isAdmin()) {
+    return true;
+  }
+
+  return router.createUrlTree(['/']);
+};
+
+/**
  * Redirects already-authenticated adventurers away from guest-only screens.
  */
 export const guestGuard: CanActivateFn = () => {
@@ -27,5 +47,5 @@ export const guestGuard: CanActivateFn = () => {
   }
 
   const router = inject(Router);
-  return router.createUrlTree(['/adventurers']);
+  return router.createUrlTree(['/']);
 };

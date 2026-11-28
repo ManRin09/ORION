@@ -1,4 +1,7 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
@@ -31,6 +34,8 @@ builder.Services
     .Configure<IOptions<JwtSettings>, JwtSigningKeyProvider>((options, jwtOptions, keyProvider) =>
     {
         var settings = jwtOptions.Value;
+        options.RequireHttpsMetadata = false;
+        options.SaveToken = false;
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,
@@ -40,7 +45,49 @@ builder.Services
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = keyProvider.SigningKey,
             ValidateLifetime = true,
+            RequireExpirationTime = true,
+            RequireSignedTokens = true,
+            ValidAlgorithms = [SecurityAlgorithms.HmacSha256],
+            NameClaimType = JwtRegisteredClaimNames.UniqueName,
+            RoleClaimType = ClaimTypes.Role,
             ClockSkew = TimeSpan.FromMinutes(1)
+        };
+
+        options.Events = new JwtBearerEvents
+        {
+            OnChallenge = async context =>
+            {
+                context.HandleResponse();
+                context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                context.Response.ContentType = "application/problem+json";
+
+                var problem = new ProblemDetails
+                {
+                    Status = StatusCodes.Status401Unauthorized,
+                    Type = "https://tools.ietf.org/html/rfc9110#section-15.5.2",
+                    Title = "Unauthorized",
+                    Detail = "A valid Orion JWT Bearer token is required to access this resource.",
+                    Instance = context.Request.Path
+                };
+
+                await context.Response.WriteAsJsonAsync(problem);
+            },
+            OnForbidden = async context =>
+            {
+                context.Response.StatusCode = StatusCodes.Status403Forbidden;
+                context.Response.ContentType = "application/problem+json";
+
+                var problem = new ProblemDetails
+                {
+                    Status = StatusCodes.Status403Forbidden,
+                    Type = "https://tools.ietf.org/html/rfc9110#section-15.5.4",
+                    Title = "Forbidden",
+                    Detail = "You do not have sufficient guild permissions to perform this operation.",
+                    Instance = context.Request.Path
+                };
+
+                await context.Response.WriteAsJsonAsync(problem);
+            }
         };
     });
 
@@ -86,6 +133,15 @@ builder.Services.AddOpenApi(options =>
 });
 
 var app = builder.Build();
+
+app.Use(async (context, next) =>
+{
+    context.Response.Headers.TryAdd("X-Content-Type-Options", "nosniff");
+    context.Response.Headers.TryAdd("X-Frame-Options", "DENY");
+    context.Response.Headers.TryAdd("Referrer-Policy", "strict-origin-when-cross-origin");
+    context.Response.Headers.TryAdd("X-Permitted-Cross-Domain-Policies", "none");
+    await next();
+});
 
 app.UseMiddleware<GlobalExceptionMiddleware>();
 

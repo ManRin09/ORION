@@ -42,6 +42,12 @@ export class AuthService {
   readonly isAuthenticated = computed(
     () => Boolean(this._accessToken()) && !this.isSessionExpired(this._expiresAtUtc()),
   );
+  readonly isAdmin = computed(
+    () =>
+      this.isAuthenticated() &&
+      (this._currentUser()?.role === 'Admin' ||
+        this.extractRoleFromJwt(this._accessToken()) === 'Admin'),
+  );
 
   constructor() {
     this.hydrateFromStorage();
@@ -114,9 +120,10 @@ export class AuthService {
    */
   completeExternalLogin(token: string, rememberTerminal: boolean = true): Observable<UserResponse> {
     const trimmed = token.trim();
+    const extractedExpiry = this.extractExpirationFromJwt(trimmed);
     this.persistSession({
       accessToken: trimmed,
-      expiresAtUtc: null,
+      expiresAtUtc: extractedExpiry,
       rememberTerminal,
       user: null,
     });
@@ -271,14 +278,64 @@ export class AuthService {
 
   private hydrateFromStorage(): void {
     const session = this.readStoredSession('local') ?? this.readStoredSession('session');
-    if (!session || !session.accessToken || this.isSessionExpired(session.expiresAtUtc)) {
+    if (!session || !session.accessToken) {
+      this.clearSession();
+      return;
+    }
+
+    const effectiveExpiry =
+      session.expiresAtUtc ?? this.extractExpirationFromJwt(session.accessToken);
+    if (this.isSessionExpired(effectiveExpiry)) {
       this.clearSession();
       return;
     }
 
     this._accessToken.set(session.accessToken);
-    this._expiresAtUtc.set(session.expiresAtUtc);
+    this._expiresAtUtc.set(effectiveExpiry);
     this._currentUser.set(session.user);
+  }
+
+  private extractExpirationFromJwt(token: string | null): string | null {
+    const payload = this.decodeJwtPayload(token);
+    const exp = payload?.['exp'];
+    if (typeof exp === 'number' && Number.isFinite(exp) && exp > 0) {
+      return new Date(exp * 1000).toISOString();
+    }
+
+    return null;
+  }
+
+  private extractRoleFromJwt(token: string | null): string | null {
+    const payload = this.decodeJwtPayload(token);
+    if (!payload) {
+      return null;
+    }
+
+    const role =
+      payload['role'] ??
+      payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
+    return typeof role === 'string' ? role : null;
+  }
+
+  private decodeJwtPayload(token: string | null): Record<string, unknown> | null {
+    if (!token || typeof atob !== 'function') {
+      return null;
+    }
+
+    const parts = token.split('.');
+    if (parts.length !== 3) {
+      return null;
+    }
+
+    try {
+      const base64Url = parts[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const padded = base64.padEnd(base64.length + ((4 - (base64.length % 4)) % 4), '=');
+      const json = atob(padded);
+      return JSON.parse(json) as Record<string, unknown>;
+    } catch {
+      return null;
+    }
   }
 
   private readStoredSession(kind: 'local' | 'session'): StoredAuthSession | null {
