@@ -2,6 +2,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
@@ -12,6 +13,7 @@ using Orion.Domain.Entities;
 using Orion.Domain.Enums;
 using Orion.Domain.Interfaces;
 using Orion.Infrastructure;
+using Orion.Infrastructure.Persistence;
 using Orion.Infrastructure.Security;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -187,6 +189,9 @@ static async Task SeedDefaultAdminAsync(IServiceProvider services)
 
     try
     {
+        var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        await dbContext.Database.MigrateAsync();
+
         var userRepository = scope.ServiceProvider.GetRequiredService<IUserRepository>();
         var passwordHasher = scope.ServiceProvider.GetRequiredService<IPasswordHasher>();
 

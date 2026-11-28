@@ -22,6 +22,146 @@ namespace Orion.Infrastructure.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("Orion.Domain.Entities.AnalyticsEvent", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("EventType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("event_type");
+
+                    b.Property<string>("ModuleSlug")
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("module_slug");
+
+                    b.Property<string>("Path")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("path");
+
+                    b.Property<string>("UserAgent")
+                        .HasMaxLength(512)
+                        .HasColumnType("character varying(512)")
+                        .HasColumnName("user_agent");
+
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.Property<Guid>("VisitorId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("visitor_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedAt")
+                        .HasDatabaseName("ix_analytics_events_created_at");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("EventType", "ModuleSlug")
+                        .HasDatabaseName("ix_analytics_events_event_type_module_slug");
+
+                    b.ToTable("analytics_events", (string)null);
+                });
+
+            modelBuilder.Entity("Orion.Domain.Entities.LearningModule", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)")
+                        .HasColumnName("description");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasColumnName("is_active");
+
+                    b.Property<int>("OrderIndex")
+                        .HasColumnType("integer")
+                        .HasColumnName("order_index");
+
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("slug");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("title");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrderIndex")
+                        .HasDatabaseName("ix_learning_modules_order_index");
+
+                    b.HasIndex("Slug")
+                        .IsUnique()
+                        .HasDatabaseName("ix_learning_modules_slug");
+
+                    b.ToTable("learning_modules", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("11111111-1111-1111-1111-111111111101"),
+                            Description = "Master fundamental syntax, control structures, functions, and data manipulation in Python.",
+                            IsActive = true,
+                            OrderIndex = 1,
+                            Slug = "python",
+                            Title = "Python"
+                        },
+                        new
+                        {
+                            Id = new Guid("11111111-1111-1111-1111-111111111102"),
+                            Description = "Build semantic web structures, responsive layouts, and 16-bit interfaces with HTML5 and CSS.",
+                            IsActive = true,
+                            OrderIndex = 2,
+                            Slug = "html-css",
+                            Title = "HTML & CSS"
+                        },
+                        new
+                        {
+                            Id = new Guid("11111111-1111-1111-1111-111111111103"),
+                            Description = "Conquer DOM manipulation, asynchronous runes, and interactive client-side logic with JavaScript.",
+                            IsActive = true,
+                            OrderIndex = 3,
+                            Slug = "js",
+                            Title = "JavaScript"
+                        },
+                        new
+                        {
+                            Id = new Guid("11111111-1111-1111-1111-111111111104"),
+                            Description = "Design relational schemas, write SQL queries, and defend data fortresses with PostgreSQL.",
+                            IsActive = true,
+                            OrderIndex = 4,
+                            Slug = "postgres",
+                            Title = "PostgreSQL"
+                        });
+                });
+
             modelBuilder.Entity("Orion.Domain.Entities.User", b =>
                 {
                     b.Property<Guid>("Id")
@@ -157,6 +297,14 @@ namespace Orion.Infrastructure.Migrations
                         {
                             t.HasCheckConstraint("ck_users_gamification_non_negative", "total_xp >= 0 AND current_level >= 1 AND current_streak >= 0 AND longest_streak >= 0 AND gems >= 0");
                         });
+                });
+
+            modelBuilder.Entity("Orion.Domain.Entities.AnalyticsEvent", b =>
+                {
+                    b.HasOne("Orion.Domain.Entities.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.SetNull);
                 });
 #pragma warning restore 612, 618
         }

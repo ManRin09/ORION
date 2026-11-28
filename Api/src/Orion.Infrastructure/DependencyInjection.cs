@@ -90,6 +90,8 @@ public static class DependencyInjection
         });
 
         services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<ILearningModuleRepository, LearningModuleRepository>();
+        services.AddScoped<IAnalyticsRepository, AnalyticsRepository>();
         services.AddSingleton<IPasswordHasher, BcryptPasswordHasher>();
         services.AddSingleton<JwtSigningKeyProvider>();
         services.AddSingleton<ITokenService, JwtTokenService>();

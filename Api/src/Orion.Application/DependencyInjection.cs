@@ -16,6 +16,8 @@ public static class DependencyInjection
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IGitHubAuthService, GitHubAuthService>();
+        services.AddScoped<ILearningModuleService, LearningModuleService>();
+        services.AddScoped<IAnalyticsService, AnalyticsService>();
 
         return services;
     }
