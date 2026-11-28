@@ -1,7 +1,25 @@
+import { UserResponse } from './user.models';
+
 export interface LoginCredentials {
   readonly identifier: string;
   readonly password: string;
   readonly rememberTerminal: boolean;
+}
+
+export type LoginRequest = LoginCredentials;
+
+export interface AuthResponse {
+  readonly accessToken: string;
+  readonly tokenType: string;
+  readonly expiresAtUtc: string;
+  readonly rememberTerminal: boolean;
+  readonly user: UserResponse;
+}
+
+export interface ChangePasswordRequest {
+  readonly currentPassword: string;
+  readonly newPassword: string;
+  readonly confirmNewPassword: string;
 }
 
 export type FamiliarTone = 'default' | 'success' | 'warning';

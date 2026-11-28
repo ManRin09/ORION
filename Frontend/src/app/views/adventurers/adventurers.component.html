@@ -1,0 +1,416 @@
+<div class="min-h-screen bg-[#101222] text-[#e1e1f7] flex flex-col">
+  <app-navbar />
+
+  <main class="flex-1 max-w-[1280px] w-full mx-auto px-5 sm:px-8 lg:px-10 py-10 space-y-8">
+    <!-- Header Title Bar -->
+    <div
+      class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b-2 border-[#3e4a3e] pb-6"
+    >
+      <div>
+        <div class="flex items-center gap-2 mb-2">
+          <span class="w-2.5 h-2.5 bg-[#38b764]" aria-hidden="true"></span>
+          <span class="font-pixel text-[11px] tracking-[0.1em] text-[#63de86]">
+            GUILD ARCHIVE · ORION API
+          </span>
+        </div>
+        <h1 class="font-display text-[22px] sm:text-[28px] tracking-[0.04em] text-[#e1e1f7]">
+          ADVENTURERS ROSTER
+        </h1>
+        <p class="text-[13px] text-[#bdcabb] mt-1">
+          Real-time CRUD operations connected directly to
+          <span class="text-[#f0bf69] font-code">GET, PUT &amp; DELETE /api/users</span>.
+        </p>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <app-retro-button variant="primary" size="md" routerLink="/register">
+          <span class="text-[12px]" aria-hidden="true">+</span>
+          <span>[ SPAWN ADVENTURER ]</span>
+        </app-retro-button>
+      </div>
+    </div>
+
+    <!-- Alert Messages -->
+    @if (errorMessage(); as err) {
+      <div
+        role="alert"
+        class="bg-[#1c1e2f] border-2 border-[#ffb4ab] p-4 pixel-shadow-sm flex items-start justify-between gap-3 text-[#ffb4ab]"
+      >
+        <div class="flex items-start gap-2.5">
+          <app-pixel-icon name="lock" [size]="16" class="mt-0.5 shrink-0" />
+          <div>
+            <p class="font-pixel text-[11px] font-bold">[ API ERROR ENCOUNTERED ]</p>
+            <p class="font-code text-[12px] text-[#e1e1f7] mt-0.5">{{ err }}</p>
+          </div>
+        </div>
+        <button
+          type="button"
+          (click)="errorMessage.set(null)"
+          class="font-code font-bold text-sm text-[#ffb4ab] hover:text-white"
+        >
+          ✕
+        </button>
+      </div>
+    }
+
+    @if (successNotice(); as notice) {
+      <div
+        role="status"
+        class="bg-[#101222] border-2 border-[#63de86] p-4 pixel-shadow-sm flex items-center justify-between gap-3 text-[#63de86]"
+      >
+        <div class="flex items-center gap-2.5">
+          <app-pixel-icon name="sparkle" [size]="16" />
+          <p class="font-pixel text-[11px] font-bold">{{ notice }}</p>
+        </div>
+        <button
+          type="button"
+          (click)="successNotice.set(null)"
+          class="font-code font-bold text-sm text-[#63de86] hover:text-white"
+        >
+          ✕
+        </button>
+      </div>
+    }
+
+    <!-- Roster Status & Refresh Bar -->
+    <div
+      class="bg-[#181a2a] border-2 border-[#3e4a3e] p-4 flex flex-wrap items-center justify-between gap-4"
+    >
+      <div class="flex items-center gap-4 text-[12px] font-code">
+        <span class="font-pixel text-[11px] text-[#f0bf69]">
+          TOTAL ADVENTURERS: <strong class="text-white">{{ totalCount() }}</strong>
+        </span>
+        <span class="text-[#8a8ba0]">|</span>
+        <span class="text-[#bdcabb]"> PAGE {{ pageNumber() }} OF {{ totalPages() || 1 }} </span>
+      </div>
+
+      <button
+        type="button"
+        (click)="loadAdventurers()"
+        [disabled]="isLoading()"
+        class="bg-[#272939] border border-[#879486] hover:border-[#63de86] text-[#e1e1f7] px-3 py-1.5 font-pixel text-[10px] tracking-wider transition-colors cursor-pointer disabled:opacity-50"
+      >
+        {{ isLoading() ? '[ REFRESHING ARCHIVES... ]' : '[ ⟳ REFRESH ROSTER ]' }}
+      </button>
+    </div>
+
+    <!-- Adventurers Grid -->
+    @if (isLoading() && adventurers().length === 0) {
+      <div class="bg-[#1c1e2f] border-2 border-[#3e4a3e] p-12 text-center space-y-3">
+        <app-pixel-icon name="sparkle" [size]="24" class="mx-auto text-[#63de86] animate-pulse" />
+        <p class="font-pixel text-[13px] text-[#63de86]">QUERYING ORION REALM ARCHIVES...</p>
+      </div>
+    } @else if (adventurers().length === 0) {
+      <div class="bg-[#1c1e2f] border-2 border-[#3e4a3e] p-12 text-center space-y-4">
+        <app-pixel-icon name="shield" [size]="28" class="mx-auto text-[#8a8ba0]" />
+        <h2 class="font-display text-[16px] text-[#e1e1f7]">NO ADVENTURERS FOUND</h2>
+        <p class="text-[13px] text-[#bdcabb] max-w-md mx-auto">
+          No active coders are currently registered in this realm. Forge your first character to
+          begin the quest.
+        </p>
+        <app-retro-button variant="primary" size="md" routerLink="/register">
+          [ SPAWN FIRST ADVENTURER ]
+        </app-retro-button>
+      </div>
+    } @else {
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+        @for (user of adventurers(); track user.id) {
+          <article
+            class="bg-[#1c1e2f] border-2 border-[#3e4a3e] hover:border-[#63de86] pixel-shadow transition-colors flex flex-col justify-between"
+          >
+            <!-- Card Header -->
+            <div
+              class="bg-[#101222] border-b-2 border-[#3e4a3e] p-3 flex items-center justify-between"
+            >
+              <span
+                class="bg-[#272939] border border-[#879486] text-[#63de86] px-2 py-0.5 font-pixel text-[9.5px]"
+              >
+                LVL {{ user.currentLevel }}
+              </span>
+              <span class="font-code text-[10px] text-[#f0bf69] uppercase font-bold">
+                {{ user.planType }}
+              </span>
+            </div>
+
+            <!-- Card Body -->
+            <div class="p-4 space-y-3 flex-1">
+              <div class="flex items-center gap-3">
+                <div
+                  class="w-10 h-10 bg-[#272939] border-2 border-[#879486] flex items-center justify-center shrink-0"
+                >
+                  @if (user.avatarUrl) {
+                    <img
+                      [src]="user.avatarUrl"
+                      [alt]="user.username"
+                      class="w-full h-full object-cover"
+                    />
+                  } @else {
+                    <app-pixel-icon name="user" [size]="18" class="text-[#63de86]" />
+                  }
+                </div>
+                <div class="min-w-0">
+                  <h3 class="font-code font-bold text-[14px] text-white truncate">
+                    {{ user.firstName }} {{ user.middleName ?? '' }}
+                  </h3>
+                  <p class="font-code text-[11px] text-[#f0bf69] truncate">
+                    &#64;{{ user.username }}
+                  </p>
+                </div>
+              </div>
+
+              <!-- Stats Badges -->
+              <div
+                class="grid grid-cols-3 gap-1 bg-[#101222] border border-[#2f3142] p-2 text-center font-code text-[10px]"
+              >
+                <div>
+                  <span class="block text-[8.5px] text-[#8a8ba0]">XP</span>
+                  <span class="text-[#99cbff] font-bold">{{ user.totalXp }}</span>
+                </div>
+                <div>
+                  <span class="block text-[8.5px] text-[#8a8ba0]">STREAK</span>
+                  <span class="text-[#63de86] font-bold">{{ user.currentStreak }}d</span>
+                </div>
+                <div>
+                  <span class="block text-[8.5px] text-[#8a8ba0]">GEMS</span>
+                  <span class="text-[#f0bf69] font-bold">{{ user.gems }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Card Actions -->
+            <div class="bg-[#181a2a] border-t-2 border-[#3e4a3e] p-2.5 flex items-center gap-2">
+              <button
+                type="button"
+                (click)="inspectUser(user.id)"
+                class="flex-1 bg-[#272939] hover:bg-[#32354a] text-[#e1e1f7] border border-[#879486] font-pixel text-[9px] py-1.5 text-center cursor-pointer transition-colors"
+                title="Inspect adventurer details (GET /api/users/{id})"
+              >
+                [ VIEW ]
+              </button>
+              <button
+                type="button"
+                (click)="openEdit(user)"
+                class="flex-1 bg-[#272939] hover:border-[#f0bf69] text-[#f0bf69] border border-[#879486] font-pixel text-[9px] py-1.5 text-center cursor-pointer transition-colors"
+                title="Edit profile (PUT /api/users/{id}/profile)"
+              >
+                [ EDIT ]
+              </button>
+              <button
+                type="button"
+                (click)="deactivateUser(user)"
+                [disabled]="deletingUserId() === user.id"
+                class="bg-[#3b1219] hover:bg-[#521923] text-[#ffb4ab] border border-[#ffb4ab]/50 font-pixel text-[9px] py-1.5 px-2.5 text-center cursor-pointer transition-colors disabled:opacity-50"
+                title="Deactivate account (DELETE /api/users/{id})"
+              >
+                {{ deletingUserId() === user.id ? '...' : '[ X ]' }}
+              </button>
+            </div>
+          </article>
+        }
+      </div>
+
+      <!-- Pagination -->
+      <div class="flex items-center justify-between border-t-2 border-[#3e4a3e] pt-6">
+        <button
+          type="button"
+          (click)="prevPage()"
+          [disabled]="pageNumber() <= 1 || isLoading()"
+          class="bg-[#272939] border-2 border-[#879486] hover:border-[#63de86] disabled:opacity-40 text-[#e1e1f7] px-4 py-2 font-pixel text-[11px] cursor-pointer disabled:cursor-not-allowed"
+        >
+          ◄ PREV PAGE
+        </button>
+
+        <span class="font-pixel text-[11px] text-[#f0bf69]">
+          PAGE {{ pageNumber() }} / {{ totalPages() || 1 }}
+        </span>
+
+        <button
+          type="button"
+          (click)="nextPage()"
+          [disabled]="pageNumber() >= totalPages() || isLoading()"
+          class="bg-[#272939] border-2 border-[#879486] hover:border-[#63de86] disabled:opacity-40 text-[#e1e1f7] px-4 py-2 font-pixel text-[11px] cursor-pointer disabled:cursor-not-allowed"
+        >
+          NEXT PAGE ►
+        </button>
+      </div>
+    }
+
+    <!-- Modal: Inspect Adventurer (GET /api/users/{id}) -->
+    @if (inspectedUser(); as detailed) {
+      <div class="fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-4">
+        <div class="bg-[#1c1e2f] border-2 border-[#879486] pixel-shadow-lg max-w-lg w-full">
+          <div
+            class="bg-[#101222] border-b-2 border-[#879486] px-4 py-2.5 flex items-center justify-between"
+          >
+            <span class="font-pixel text-[11px] text-[#63de86]">
+              [ INSPECT ADVENTURER ARCHIVE · GET /api/users/{{ detailed.id.substring(0, 8) }}... ]
+            </span>
+            <button
+              type="button"
+              (click)="closeInspect()"
+              class="w-5 h-5 bg-[#91000a] text-white font-code font-bold flex items-center justify-center"
+            >
+              ×
+            </button>
+          </div>
+
+          <div class="p-6 space-y-4 font-code text-[12px]">
+            <div class="flex items-center gap-4 bg-[#101222] p-4 border border-[#3e4a3e]">
+              <div
+                class="w-14 h-14 bg-[#272939] border-2 border-[#63de86] flex items-center justify-center"
+              >
+                <app-pixel-icon name="user" [size]="24" class="text-[#63de86]" />
+              </div>
+              <div>
+                <h3 class="font-bold text-[16px] text-white">
+                  {{ detailed.firstName }} {{ detailed.middleName ?? '' }}
+                </h3>
+                <p class="text-[#f0bf69]">&#64;{{ detailed.username }}</p>
+                <p class="text-[11px] text-[#8a8ba0]">{{ detailed.email }}</p>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3 text-[11px]">
+              <div class="bg-[#101222] p-2.5 border border-[#2f3142]">
+                <span class="text-[#8a8ba0] block font-pixel text-[9px]">AGGREGATE ID (GUID)</span>
+                <span class="text-[#99cbff] break-all">{{ detailed.id }}</span>
+              </div>
+              <div class="bg-[#101222] p-2.5 border border-[#2f3142]">
+                <span class="text-[#8a8ba0] block font-pixel text-[9px]">AUTH PROVIDER</span>
+                <span class="text-white">{{ detailed.authProvider }}</span>
+              </div>
+              <div class="bg-[#101222] p-2.5 border border-[#2f3142]">
+                <span class="text-[#8a8ba0] block font-pixel text-[9px]">LEVEL &amp; XP</span>
+                <span class="text-[#63de86]"
+                  >Level {{ detailed.currentLevel }} ({{ detailed.totalXp }} XP)</span
+                >
+              </div>
+              <div class="bg-[#101222] p-2.5 border border-[#2f3142]">
+                <span class="text-[#8a8ba0] block font-pixel text-[9px]">GEMS &amp; STREAK</span>
+                <span class="text-[#f0bf69]"
+                  >{{ detailed.gems }} gems · {{ detailed.currentStreak }}d streak</span
+                >
+              </div>
+              <div class="bg-[#101222] p-2.5 border border-[#2f3142]">
+                <span class="text-[#8a8ba0] block font-pixel text-[9px]">CREATED AT (UTC)</span>
+                <span class="text-[#bdcabb]">{{ detailed.createdAt }}</span>
+              </div>
+              <div class="bg-[#101222] p-2.5 border border-[#2f3142]">
+                <span class="text-[#8a8ba0] block font-pixel text-[9px]">LAST UPDATED (UTC)</span>
+                <span class="text-[#bdcabb]">{{ detailed.updatedAt }}</span>
+              </div>
+            </div>
+
+            <div class="pt-2 flex justify-end gap-2">
+              <button
+                type="button"
+                (click)="openEdit(detailed); closeInspect()"
+                class="bg-[#272939] border border-[#f0bf69] text-[#f0bf69] font-pixel text-[10px] px-4 py-2 hover:bg-[#32354a]"
+              >
+                [ EDIT PROFILE ]
+              </button>
+              <button
+                type="button"
+                (click)="closeInspect()"
+                class="bg-[#38b764] text-[#00411c] font-pixel font-bold text-[10px] px-4 py-2 border border-black"
+              >
+                [ CLOSE ]
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Modal: Edit Profile (PUT /api/users/{id}/profile) -->
+    @if (editingUser(); as editing) {
+      <div class="fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-4">
+        <div class="bg-[#1c1e2f] border-2 border-[#f0bf69] pixel-shadow-lg max-w-lg w-full">
+          <div
+            class="bg-[#101222] border-b-2 border-[#f0bf69] px-4 py-2.5 flex items-center justify-between"
+          >
+            <span class="font-pixel text-[11px] text-[#f0bf69]">
+              [ EDIT ADVENTURER PROFILE · PUT /api/users/profile ]
+            </span>
+            <button
+              type="button"
+              (click)="cancelEdit()"
+              class="w-5 h-5 bg-[#91000a] text-white font-code font-bold flex items-center justify-center"
+            >
+              ×
+            </button>
+          </div>
+
+          <form
+            [formGroup]="editForm"
+            (ngSubmit)="saveEditProfile()"
+            class="p-6 space-y-4 font-code text-[12px]"
+          >
+            <div>
+              <label class="block font-pixel text-[10px] text-[#e1e1f7] mb-1"> FIRST NAME * </label>
+              <input
+                type="text"
+                formControlName="firstName"
+                class="w-full bg-[#0b0d1c] border-2 border-[#879486] focus:border-[#63de86] p-2.5 text-[#e1e1f7] outline-none"
+              />
+            </div>
+
+            <div>
+              <label class="block font-pixel text-[10px] text-[#e1e1f7] mb-1">
+                MIDDLE / TITLE
+              </label>
+              <input
+                type="text"
+                formControlName="middleName"
+                placeholder="e.g. Pendragon"
+                class="w-full bg-[#0b0d1c] border-2 border-[#879486] focus:border-[#63de86] p-2.5 text-[#e1e1f7] outline-none"
+              />
+            </div>
+
+            <div>
+              <label class="block font-pixel text-[10px] text-[#e1e1f7] mb-1">
+                USERNAME (SLUG)
+              </label>
+              <input
+                type="text"
+                formControlName="username"
+                class="w-full bg-[#0b0d1c] border-2 border-[#879486] focus:border-[#63de86] p-2.5 text-[#e1e1f7] outline-none"
+              />
+            </div>
+
+            <div>
+              <label class="block font-pixel text-[10px] text-[#e1e1f7] mb-1">
+                AVATAR URL (HTTP/HTTPS)
+              </label>
+              <input
+                type="url"
+                formControlName="avatarUrl"
+                placeholder="https://..."
+                class="w-full bg-[#0b0d1c] border-2 border-[#879486] focus:border-[#63de86] p-2.5 text-[#e1e1f7] outline-none"
+              />
+            </div>
+
+            <div class="pt-3 border-t border-[#323445] flex justify-end gap-2">
+              <button
+                type="button"
+                (click)="cancelEdit()"
+                class="bg-[#272939] border border-[#879486] text-[#bdcabb] font-pixel text-[10px] px-4 py-2 hover:bg-[#32354a]"
+              >
+                [ CANCEL ]
+              </button>
+              <button
+                type="submit"
+                [disabled]="isSaving()"
+                class="bg-[#38b764] hover:bg-[#44c470] text-[#00411c] font-pixel font-bold text-[10px] px-5 py-2 border border-black disabled:opacity-50"
+              >
+                {{ isSaving() ? '[ SAVING CHANGES... ]' : '[ SAVE PROFILE ]' }}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    }
+  </main>
+
+  <app-footer />
+</div>

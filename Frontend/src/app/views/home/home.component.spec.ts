@@ -1,12 +1,17 @@
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { HomeComponent } from './home.component';
 
 describe('HomeComponent', () => {
   beforeEach(async () => {
+    window.localStorage.clear();
+    window.sessionStorage.clear();
     await TestBed.configureTestingModule({
       imports: [HomeComponent],
-      providers: [provideRouter([])],
+      providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting()],
     }).compileComponents();
   });
 

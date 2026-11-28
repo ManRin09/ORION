@@ -19,14 +19,14 @@ public sealed class JwtSigningKeyProvider
         IOptions<JwtSettings> jwtOptions,
         ILogger<JwtSigningKeyProvider> logger)
     {
-        var configuredKey = jwtOptions.Value.Key;
+        var configuredKey = jwtOptions.Value.ResolveSigningKey();
         if (!string.IsNullOrWhiteSpace(configuredKey))
         {
             var keyBytes = Encoding.UTF8.GetBytes(configuredKey);
             if (keyBytes.Length < MinimumKeyBytes)
             {
                 throw new InvalidOperationException(
-                    $"Jwt:Key must be at least {MinimumKeyBytes} bytes (256 bits) for HMAC-SHA256 signing.");
+                    $"Jwt:SecretKey (or Jwt:Key) must be at least {MinimumKeyBytes} bytes (256 bits) for HMAC-SHA256 signing.");
             }
 
             SigningKey = new SymmetricSecurityKey(keyBytes);
@@ -34,8 +34,8 @@ public sealed class JwtSigningKeyProvider
         }
 
         logger.LogWarning(
-            "Jwt:Key is not configured; using an ephemeral 256-bit signing key for this process lifetime. " +
-            "Set Jwt__Key in environment variables to persist issued tokens across restarts.");
+            "Jwt:SecretKey is not configured; using an ephemeral 256-bit signing key for this process lifetime. " +
+            "Set Jwt__SecretKey in environment variables to persist issued tokens across restarts.");
 
         SigningKey = new SymmetricSecurityKey(RandomNumberGenerator.GetBytes(MinimumKeyBytes));
     }

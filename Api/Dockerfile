@@ -10,7 +10,6 @@ COPY src/Orion.Domain/Orion.Domain.csproj src/Orion.Domain/Orion.Domain.csproj
 COPY src/Orion.Application/Orion.Application.csproj src/Orion.Application/Orion.Application.csproj
 COPY src/Orion.Infrastructure/Orion.Infrastructure.csproj src/Orion.Infrastructure/Orion.Infrastructure.csproj
 COPY src/Orion.Api/Orion.Api.csproj src/Orion.Api/Orion.Api.csproj
-COPY src/Orion.Web/Orion.Web.csproj src/Orion.Web/Orion.Web.csproj
 COPY tests/Orion.UnitTests/Orion.UnitTests.csproj tests/Orion.UnitTests/Orion.UnitTests.csproj
 
 RUN dotnet restore src/Orion.sln

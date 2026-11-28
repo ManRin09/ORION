@@ -28,7 +28,6 @@ Orion/
 │   │   ├── Orion.Application/    # Casos de uso, DTOs, validadores FluentValidation
 │   │   ├── Orion.Infrastructure/ # EF Core, PostgreSQL (Npgsql), migraciones y BCrypt
 │   │   ├── Orion.Api/            # Entrypoint REST, middlewares, OpenAPI/Swagger, CORS, /health
-│   │   ├── Orion.Web/            # Proyecto MVC plantilla incluido en la solución
 │   │   └── Orion.sln             # Solución .NET 10
 │   └── tests/
 │       └── Orion.UnitTests/      # Pruebas unitarias (xUnit + NSubstitute)
@@ -76,6 +75,8 @@ flowchart TD
 5. **CORS (`FrontendClient`):** Permite `http://localhost:4200`, `https://localhost:4200` y los orígenes definidos en `AllowedOrigins`.
 6. **Rutas expuestas:**
    - `GET /health` — Health check ligero para Render (`200 OK`).
+   - `POST /api/auth/login`, `GET /api/auth/me`, `PUT /api/auth/password`, `DELETE /api/auth/session` — Autenticación local con JWT Bearer.
+   - `GET /api/auth/github/login`, `GET /api/auth/github/callback` — Flujo GitHub OAuth con cookie `HttpOnly` (`SameSite=Lax`, `Secure` en producción) anti-CSRF, resolución de email privado (`/user/emails`), creación/vinculación de usuario y redirección `${FrontendRedirectUrl}?token={jwt}`.
    - `POST /api/users/register` — Registro local de aventurero (`201 Created`).
    - `GET /api/users/{id:guid}` — Consulta por identificador (`200 OK` / `404 Not Found`).
    - `GET /api/users?pageNumber=1&pageSize=10` — Listado paginado (`200 OK`).
@@ -100,8 +101,10 @@ El frontend es una aplicación **Angular 22.3** basada en **Standalone Component
 | Ruta | Vista (Lazy-Loaded) | Propósito |
 | :--- | :--- | :--- |
 | `/` | `HomeComponent` | Landing RPG: barra de navegación, héroe interactivo con arena de batalla, mapa de zonas, inventario del gremio, tabla comparativa y CTA Save-Point. |
-| `/login` | `LoginComponent` | Pantalla `[ SLOT 01: LOAD GAME ]` con formulario reactivo (`LoginCardComponent`) y asistente contextual en tiempo real (`FamiliarGuideCardComponent` / Pyxis). |
-| `/register` | `RegisterComponent` | Creación de personaje (`RegisterCardComponent`) con validación en vivo de las 4 runas de contraseña (`CipherRequirementsComponent`) y confirmación de hechizo. |
+| `/login` | `LoginComponent` | Pantalla `[ SLOT 01: LOAD GAME ]` conectada a `POST /api/auth/login` (JWT) con asistente Pyxis en tiempo real y acceso a GitHub OAuth. |
+| `/register` | `RegisterComponent` | Creación de personaje (`RegisterCardComponent`) conectada a `POST /api/users/register`, con validación en vivo de las 4 runas de contraseña (`CipherRequirementsComponent`). |
+| `/auth/callback` | `AuthCallbackComponent` | Recepción de callback externo (`?token=...`), hidratación de sesión vía `GET /api/auth/me` y redirección al Roster. |
+| `/adventurers` | `AdventurersComponent` | Guild Roster: CRUD interactivo de aventureros conectado a `GET`, `PUT` y `DELETE /api/users`. |
 | `**` | Redirección a `/` | Fallback a la página principal. |
 
 ### Organización Modular de UI
@@ -109,8 +112,8 @@ El frontend es una aplicación **Angular 22.3** basada en **Standalone Component
 - **`components/landing/`:** `NavbarComponent`, `HeroSectionComponent`, `BattleArenaComponent`, `QuestMapComponent`, `ZoneCardComponent`, `GuildInventoryComponent`, `QuestingComparisonComponent`, `SavePointCtaComponent`, `FooterComponent`.
 - **`components/auth/`:** `LoginCardComponent`, `RegisterCardComponent`, `CipherRequirementsComponent`, `FamiliarGuideCardComponent`.
 - **`components/shared/`:** Primitivas reutilizables `PixelIconComponent` y `RetroButtonComponent`.
-- **`models/` & `data/`:** Tipado estricto (`auth.models.ts`, `quest-landing.models.ts`) y contenido estructurado (`quest-landing.data.ts`).
-- **Estado de integración Backend ↔ Frontend:** Actualmente las vistas de autenticación emiten eventos y feedback visual local (modo preview). Los directorios `src/app/services/` y `src/app/interceptors/` están preparados para conectar `HttpClient` contra los endpoints de `Orion.Api`.
+- **`services/`, `interceptors/`, `guards/` & `environments/`:** Un único `AuthService` centraliza `/api/auth` y `/api/users` contra `${environment.apiUrl}` (`https://orion-backend-yar4.onrender.com/api` en producción y `http://localhost:5092/api` en desarrollo local); `authInterceptor` adjunta automáticamente `Authorization: Bearer <token>` y limpia sesiones vencidas ante `401`.
+- **`models/` & `data/`:** Tipado estricto (`auth.models.ts`, `quest-landing.models.ts`, `user.models.ts`) y contenido estructurado (`quest-landing.data.ts`).
 
 ---
 

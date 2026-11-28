@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, output, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { LoginCredentials } from '../../../models/auth.models';
@@ -26,6 +26,8 @@ export class LoginCardComponent {
     password: ['', [Validators.required, Validators.minLength(6)]],
     rememberTerminal: [true],
   });
+
+  readonly submitting = input<boolean>(false);
 
   readonly loginSubmitted = output<LoginCredentials>();
   readonly githubLoginRequested = output<void>();

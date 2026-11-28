@@ -1,12 +1,54 @@
+import { signal } from '@angular/core';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { of } from 'rxjs';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { RegisterComponent } from './register.component';
+import { AuthService } from '../../services/auth.service';
+import { UserResponse } from '../../models/user.models';
+
+const mockUser: UserResponse = {
+  id: '00000000-0000-0000-0000-000000000001',
+  firstName: 'Arthur',
+  middleName: null,
+  email: 'arthur@orion.realm',
+  username: 'arthur',
+  avatarUrl: null,
+  authProvider: 'Local',
+  role: 'User',
+  planType: 'Free',
+  totalXp: 0,
+  currentLevel: 1,
+  currentStreak: 0,
+  longestStreak: 0,
+  gems: 0,
+  isActive: true,
+  acceptedTermsAt: '2026-11-27T00:00:00Z',
+  createdAt: '2026-11-27T00:00:00Z',
+  updatedAt: '2026-11-27T00:00:00Z',
+};
+
+const mockAuthService = {
+  isAuthenticated: signal(false).asReadonly(),
+  currentUser: signal<UserResponse | null>(null).asReadonly(),
+  register: () => of(mockUser),
+  logout: () => of(void 0),
+};
 
 describe('RegisterComponent', () => {
   beforeEach(async () => {
+    window.localStorage.clear();
+    window.sessionStorage.clear();
     await TestBed.configureTestingModule({
       imports: [RegisterComponent],
-      providers: [provideRouter([])],
+      providers: [
+        provideRouter([]),
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        { provide: AuthService, useValue: mockAuthService },
+      ],
     }).compileComponents();
   });
 

@@ -1,6 +1,4 @@
-<header
-  class="sticky top-0 z-50 bg-[#181a2a] border-b-2 border-[#3e4a3e] pixel-nav-shadow"
->
+<header class="sticky top-0 z-50 bg-[#181a2a] border-b-2 border-[#3e4a3e] pixel-nav-shadow">
   <div class="max-w-[1280px] mx-auto px-5 sm:px-8 lg:px-10 h-16 flex items-center justify-between">
     <!-- Left: Brand + Primary Navigation -->
     <div class="flex items-center gap-6 lg:gap-7">
@@ -46,26 +44,54 @@
     <!-- Right: Auth + CTA + Adventurer Avatar -->
     <div class="hidden md:flex items-center gap-3.5">
       <a
-        routerLink="/login"
-        [attr.aria-current]="isLoginRoute() ? 'page' : null"
-        class="bg-[#1c1e2f] border-2 pixel-shadow-sm px-4 py-2 text-[11px] font-medium tracking-[0.08em] text-[#e1e1f7] hover:border-[#63de86] hover:bg-[#272939] transition-colors uppercase"
-        [class.border-[#63de86]]="isLoginRoute()"
-        [class.border-[#3e4a3e]]="!isLoginRoute()"
+        routerLink="/adventurers"
+        [attr.aria-current]="isAdventurersRoute() ? 'page' : null"
+        class="bg-[#1c1e2f] border-2 pixel-shadow-sm px-3.5 py-2 text-[11px] font-pixel tracking-[0.06em] text-[#f0bf69] hover:border-[#f0bf69] hover:bg-[#272939] transition-colors uppercase inline-flex items-center gap-1.5"
+        [class.border-[#f0bf69]]="isAdventurersRoute()"
+        [class.border-[#3e4a3e]]="!isAdventurersRoute()"
       >
-        LOG IN
+        <app-pixel-icon name="swords" [size]="13" />
+        <span>ROSTER</span>
       </a>
 
-      <app-retro-button variant="primary" size="sm" routerLink="/register">
-        [ PRESS START ]
-      </app-retro-button>
+      @if (isAuthenticated()) {
+        <span
+          class="bg-[#101222] border-2 border-[#63de86] px-3 py-1.5 font-code text-[11px] text-[#63de86]"
+        >
+          &#64;{{ currentUser()?.username ?? 'adventurer' }} · LVL
+          {{ currentUser()?.currentLevel ?? 1 }}
+        </span>
 
-      <a
-        routerLink="/login"
-        aria-label="Adventurer sign in"
-        class="w-8 h-8 rounded-full bg-[#63de86] border-2 border-black pixel-shadow-sm flex items-center justify-center text-[#00411c] hover:bg-[#76ea98] transition-colors"
-      >
-        <app-pixel-icon name="user" [size]="15" />
-      </a>
+        <button
+          type="button"
+          (click)="logout()"
+          class="bg-[#3b1219] border-2 border-[#ffb4ab]/60 pixel-shadow-sm px-3.5 py-2 text-[11px] font-pixel tracking-[0.06em] text-[#ffb4ab] hover:bg-[#521923] cursor-pointer transition-colors uppercase"
+        >
+          LOG OUT
+        </button>
+      } @else {
+        <a
+          routerLink="/login"
+          [attr.aria-current]="isLoginRoute() ? 'page' : null"
+          class="bg-[#1c1e2f] border-2 pixel-shadow-sm px-4 py-2 text-[11px] font-medium tracking-[0.08em] text-[#e1e1f7] hover:border-[#63de86] hover:bg-[#272939] transition-colors uppercase"
+          [class.border-[#63de86]]="isLoginRoute()"
+          [class.border-[#3e4a3e]]="!isLoginRoute()"
+        >
+          LOG IN
+        </a>
+
+        <app-retro-button variant="primary" size="sm" routerLink="/register">
+          [ PRESS START ]
+        </app-retro-button>
+
+        <a
+          routerLink="/login"
+          aria-label="Adventurer sign in"
+          class="w-8 h-8 rounded-full bg-[#63de86] border-2 border-black pixel-shadow-sm flex items-center justify-center text-[#00411c] hover:bg-[#76ea98] transition-colors"
+        >
+          <app-pixel-icon name="user" [size]="15" />
+        </a>
+      }
     </div>
 
     <!-- Mobile Menu Toggle -->
@@ -103,24 +129,41 @@
           </a>
         }
       </nav>
-      <div class="pt-3 border-t border-[#2f3142] flex items-center gap-3">
+      <div class="pt-3 border-t border-[#2f3142] flex flex-wrap items-center gap-2">
         <a
-          routerLink="/login"
+          routerLink="/adventurers"
           (click)="mobileMenuOpen.set(false)"
-          class="flex-1 text-center bg-[#1c1e2f] border-2 border-[#3e4a3e] px-3 py-2 text-xs text-[#e1e1f7]"
+          class="flex-1 text-center bg-[#1c1e2f] border-2 border-[#f0bf69] px-3 py-2 text-xs text-[#f0bf69] font-pixel"
         >
-          LOG IN
+          ROSTER
         </a>
-        <app-retro-button
-          class="flex-1"
-          variant="primary"
-          size="sm"
-          routerLink="/register"
-          [fullWidth]="true"
-          (pressed)="mobileMenuOpen.set(false)"
-        >
-          [ PRESS START ]
-        </app-retro-button>
+        @if (isAuthenticated()) {
+          <button
+            type="button"
+            (click)="logout()"
+            class="flex-1 text-center bg-[#3b1219] border-2 border-[#ffb4ab]/60 px-3 py-2 text-xs text-[#ffb4ab] font-pixel"
+          >
+            LOG OUT
+          </button>
+        } @else {
+          <a
+            routerLink="/login"
+            (click)="mobileMenuOpen.set(false)"
+            class="flex-1 text-center bg-[#1c1e2f] border-2 border-[#3e4a3e] px-3 py-2 text-xs text-[#e1e1f7]"
+          >
+            LOG IN
+          </a>
+          <app-retro-button
+            class="flex-1"
+            variant="primary"
+            size="sm"
+            routerLink="/register"
+            [fullWidth]="true"
+            (pressed)="mobileMenuOpen.set(false)"
+          >
+            [ PRESS START ]
+          </app-retro-button>
+        }
       </div>
     </div>
   }

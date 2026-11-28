@@ -8,9 +8,8 @@ Este archivo define la ventana de contexto técnica para cualquier agente de IA 
 
 | Ruta | Stack | Rol | Estado actual |
 | :--- | :--- | :--- | :--- |
-| `Api/` | .NET 10, ASP.NET Core, EF Core 10, Npgsql, FluentValidation, BCrypt | Backend REST API con Clean Architecture | Funcional, con pruebas unitarias (30 tests) y dockerizado para Render |
-| `Api/src/Orion.Web/` | ASP.NET Core MVC (.NET 10) | Proyecto plantilla dentro de `Orion.sln` | No es el entrypoint de producción; la API activa es `Orion.Api` |
-| `Frontend/` | Angular 22.3, TypeScript 6, Tailwind CSS v4, Vitest | SPA con temática RPG 16-bit (`/`, `/login`, `/register`) | UI interactiva funcional con estado local/preview; aún no consume HTTP del backend (`services/` e `interceptors/` están vacíos) |
+| `Api/` | .NET 10, ASP.NET Core, EF Core 10, Npgsql, FluentValidation, BCrypt, JWT | Backend REST API con Clean Architecture | Funcional (`UsersController` + `AuthController`), con pruebas unitarias y dockerizado para Render |
+| `Frontend/` | Angular 22.3, TypeScript 6, Tailwind CSS v4, Vitest | SPA con temática RPG 16-bit (`/`, `/login`, `/register`, `/adventurers`, `/auth/callback`) | Conectado a `Orion.Api` mediante un único `AuthService` (`/api/auth` y `/api/users`), `authInterceptor` (Bearer JWT) y `authGuard` |
 
 ---
 
@@ -19,7 +18,7 @@ Este archivo define la ventana de contexto técnica para cualquier agente de IA 
 ### Backend (`Api/`)
 - **Solución:** `Api/src/Orion.sln`
 - **Entrypoint & Pipeline HTTP:** `Api/src/Orion.Api/Program.cs`
-- **Controladores:** `Api/src/Orion.Api/Controllers/UsersController.cs` (`/api/users`)
+- **Controladores:** `Api/src/Orion.Api/Controllers/{UsersController,AuthController}.cs` (`/api/users`, `/api/auth`)
 - **Manejo global de excepciones:** `Api/src/Orion.Api/Middlewares/GlobalExceptionMiddleware.cs`
 - **Factory de migraciones (Neon direct endpoint):** `Api/src/Orion.Api/Persistence/AppDbContextFactory.cs`
 - **Contenedorización Render:** `Api/Dockerfile`, `Api/.dockerignore`
@@ -30,28 +29,30 @@ Este archivo define la ventana de contexto técnica para cualquier agente de IA 
   - Contrato repositorio: `Api/src/Orion.Domain/Interfaces/IUserRepository.cs`
 - **Aplicación (`Orion.Application`):**
   - Registro DI: `Api/src/Orion.Application/DependencyInjection.cs`
-  - Casos de uso: `Api/src/Orion.Application/Services/UserService.cs`
-  - Interfaces: `Api/src/Orion.Application/Interfaces/{IUserService,IPasswordHasher}.cs`
-  - DTOs: `Api/src/Orion.Application/DTOs/Users/{RegisterUserRequest,UpdateUserProfileRequest,UserResponse}.cs`, `Api/src/Orion.Application/DTOs/Common/PagedResponse.cs`
+  - Casos de uso: `Api/src/Orion.Application/Services/{UserService,AuthService,GitHubAuthService}.cs`
+  - Interfaces: `Api/src/Orion.Application/Interfaces/{IUserService,IAuthService,IGitHubAuthService,IGitHubOAuthClient,IPasswordHasher,ITokenService}.cs`
+  - DTOs: `Api/src/Orion.Application/DTOs/Users/{RegisterUserRequest,UpdateUserProfileRequest,UserResponse}.cs`, `Api/src/Orion.Application/DTOs/Auth/{AuthResponse,ChangePasswordRequest,GitHubUserProfile,LoginRequest}.cs`, `Api/src/Orion.Application/DTOs/Common/PagedResponse.cs`
   - Validadores: `Api/src/Orion.Application/Validators/{PasswordRules,ProfileRules,RegisterUserRequestValidator,UpdateUserProfileRequestValidator}.cs`
 - **Infraestructura (`Orion.Infrastructure`):**
   - Registro DI: `Api/src/Orion.Infrastructure/DependencyInjection.cs`
   - DbContext y mapeo: `Api/src/Orion.Infrastructure/Persistence/AppDbContext.cs`, `Api/src/Orion.Infrastructure/Config/UserConfiguration.cs`
   - Migraciones: `Api/src/Orion.Infrastructure/Migrations/`
-  - Repositorio y hash: `Api/src/Orion.Infrastructure/Repositories/UserRepository.cs`, `Api/src/Orion.Infrastructure/Security/BcryptPasswordHasher.cs`
+  - Repositorio y seguridad: `Api/src/Orion.Infrastructure/Repositories/UserRepository.cs`, `Api/src/Orion.Infrastructure/Security/{BcryptPasswordHasher,JwtSettings,JwtSigningKeyProvider,JwtTokenService,GitHubOAuthSettings,GitHubOAuthClient}.cs`
 - **Pruebas (`Orion.UnitTests`):**
   - `Api/tests/Orion.UnitTests/{Security,Services,Validators}/` (xUnit + NSubstitute)
 
 ### Frontend (`Frontend/`)
 - **Configuración raíz:** `Frontend/package.json`, `Frontend/angular.json`, `Frontend/tsconfig.json`
 - **App shell & rutas:** `Frontend/src/app/{app.ts,app.config.ts,app.routes.ts}`, `Frontend/src/index.html`, `Frontend/src/styles.css`
-- **Modelos y datos:** `Frontend/src/app/models/{auth.models.ts,quest-landing.models.ts}`, `Frontend/src/app/data/quest-landing.data.ts`
-- **Vistas (lazy-loaded):** `Frontend/src/app/views/{home,login,register}/`
+- **Entornos (`src/environments/`):** `environment.ts` (Render: `https://orion-backend-yar4.onrender.com/api`) y `environment.development.ts` (Local: `http://localhost:5092/api`, reemplazado en `ng serve` mediante `fileReplacements` en `angular.json`)
+- **Modelos y datos:** `Frontend/src/app/models/{auth.models.ts,quest-landing.models.ts,user.models.ts}`, `Frontend/src/app/data/quest-landing.data.ts`
+- **Servicio HTTP único:** `Frontend/src/app/services/auth.service.ts` (`/api/auth` y CRUD `/api/users`)
+- **Interceptores y Guards:** `Frontend/src/app/interceptors/auth.interceptor.ts` (`Authorization: Bearer` + manejo `401`), `Frontend/src/app/guards/auth.guard.ts` (`authGuard`, `guestGuard`)
+- **Vistas (lazy-loaded):** `Frontend/src/app/views/{home,login,register,adventurers,auth-callback}/`
 - **Componentes:**
   - `Frontend/src/app/components/landing/` (`navbar`, `hero-section`, `battle-arena`, `quest-map`, `zone-card`, `guild-inventory`, `questing-comparison`, `save-point-cta`, `footer`)
   - `Frontend/src/app/components/auth/` (`login-card`, `register-card`, `cipher-requirements`, `familiar-guide-card`)
   - `Frontend/src/app/components/shared/` (`pixel-icon`, `retro-button`)
-- **Espacios reservados para integración API:** `Frontend/src/app/services/`, `Frontend/src/app/interceptors/`
 
 ---
 
@@ -74,14 +75,16 @@ Este archivo define la ventana de contexto técnica para cualquier agente de IA 
      - `UserNotFoundException` → `404 Not Found`
      - `EmailAlreadyExistsException` / `UsernameAlreadyExistsException` / `DbUpdateException` con `PostgresErrorCodes.UniqueViolation` → `409 Conflict`
      - Excepciones no controladas → `500 Internal Server Error` (solo expone `exception.Message` en `Development`).
-4. **Seguridad y Secretos:**
+4. **Seguridad, JWT y Secretos:**
    - Hashing de contraseñas con `BcryptPasswordHasher` (`BCrypt.Net.BCrypt.EnhancedHashPassword` con `WorkFactor = 12`).
-   - **Nunca** incluir ni commitear `appsettings.Development.json`, `.env` o credenciales reales de Neon. Están excluidos en `.gitignore`, `Api/.gitignore` y `Api/.dockerignore`.
+   - JWT configurado vía `IOptions<JwtSettings>` (`Api/src/Orion.Infrastructure/Security/JwtSettings.cs`): usa `Jwt__SecretKey` (>= 32 bytes), `Jwt__Issuer`, `Jwt__Audience` y `Jwt__ExpirationMinutes` en Render (con fallback retrocompatible a `Jwt__Key` y `Jwt__AccessTokenExpirationMinutes`); emite claims `sub`, `email`, `name`, `unique_name`, `role` (`ClaimTypes.Role` + `"role"`) y `jti`.
+   - GitHub OAuth configurado vía `IOptions<GitHubOAuthSettings>` (`GitHubOAuth__ClientId`, `GitHubOAuth__ClientSecret`, `GitHubOAuth__CallbackUrl`, `GitHubOAuth__FrontendRedirectUrl`), dejando placeholders vacíos en `appsettings.json`.
+   - **Nunca** incluir ni commitear secrets reales en `appsettings.json`, `appsettings.Development.json` ni `.env`. Están excluidos en `.gitignore`, `Api/.gitignore` y `Api/.dockerignore`.
    - `AddInfrastructure` lanza `InvalidOperationException` al arranque si `ConnectionStrings:DefaultConnection` está vacía.
 5. **Compatibilidad con Render (Contenedor):**
    - No ejecutar `app.UseHttpsRedirection()` fuera de `app.Environment.IsDevelopment()` (Render termina TLS en su proxy externo y envía HTTP al puerto `10000` o `$PORT`).
    - Mantener `GET /health` ligero (`200 OK`) sin consultar la base de datos en cada probe.
-   - Mantener soporte dinámico de `AllowedOrigins` (arreglo o lista separada por `,`/`;`) junto con `http://localhost:4200` y `https://localhost:4200`, y Swagger condicional (`Development` o `ENABLE_SWAGGER=true`).
+   - Mantener soporte dinámico de `AllowedOrigins` (arreglo o lista separada por `,`/`;`, p. ej. `https://orion-1frh.onrender.com`) junto con `http://localhost:4200` y `https://localhost:4200`, y Swagger condicional (`Development` o `ENABLE_SWAGGER=true`) con esquema OpenAPI **Bearer JWT**.
 
 ### Reglas del Frontend (Angular 22 + Tailwind v4)
 1. **Estilo de componentes:**

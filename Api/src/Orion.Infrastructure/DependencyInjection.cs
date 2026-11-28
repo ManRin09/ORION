@@ -54,12 +54,16 @@ public static class DependencyInjection
                     options.Audience = audience.Trim();
                 }
 
+                options.SecretKey = section[nameof(JwtSettings.SecretKey)];
                 options.Key = section[nameof(JwtSettings.Key)];
 
-                if (int.TryParse(section[nameof(JwtSettings.AccessTokenExpirationMinutes)], out var accessMinutes) &&
-                    accessMinutes > 0)
+                var expirationValue = section[nameof(JwtSettings.ExpirationMinutes)]
+                    ?? section[nameof(JwtSettings.AccessTokenExpirationMinutes)];
+
+                if (int.TryParse(expirationValue, out var expirationMinutes) &&
+                    expirationMinutes > 0)
                 {
-                    options.AccessTokenExpirationMinutes = accessMinutes;
+                    options.ExpirationMinutes = expirationMinutes;
                 }
 
                 if (int.TryParse(section[nameof(JwtSettings.RememberMeExpirationDays)], out var rememberDays) &&
@@ -69,10 +73,27 @@ public static class DependencyInjection
                 }
             });
 
+        services.AddOptions<GitHubOAuthSettings>()
+            .Configure(options =>
+            {
+                var section = configuration.GetSection(GitHubOAuthSettings.SectionName);
+                options.ClientId = section[nameof(GitHubOAuthSettings.ClientId)]?.Trim() ?? string.Empty;
+                options.ClientSecret = section[nameof(GitHubOAuthSettings.ClientSecret)]?.Trim() ?? string.Empty;
+                options.CallbackUrl = section[nameof(GitHubOAuthSettings.CallbackUrl)]?.Trim() ?? string.Empty;
+                options.FrontendRedirectUrl = section[nameof(GitHubOAuthSettings.FrontendRedirectUrl)]?.Trim() ?? string.Empty;
+            });
+
+        services.AddHttpClient(GitHubOAuthClient.HttpClientName, client =>
+        {
+            client.Timeout = TimeSpan.FromSeconds(15);
+            client.DefaultRequestHeaders.UserAgent.ParseAdd(GitHubOAuthClient.UserAgentValue);
+        });
+
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddSingleton<IPasswordHasher, BcryptPasswordHasher>();
         services.AddSingleton<JwtSigningKeyProvider>();
         services.AddSingleton<ITokenService, JwtTokenService>();
+        services.AddScoped<IGitHubOAuthClient, GitHubOAuthClient>();
 
         return services;
     }

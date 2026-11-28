@@ -22,15 +22,23 @@ public sealed class JwtTokenService(
         var utcNow = DateTime.UtcNow;
         var expiresAtUtc = rememberTerminal
             ? utcNow.AddDays(Math.Max(1, settings.RememberMeExpirationDays))
-            : utcNow.AddMinutes(Math.Max(5, settings.AccessTokenExpirationMinutes));
+            : utcNow.AddMinutes(Math.Max(5, settings.ExpirationMinutes));
+
+        var displayName = string.IsNullOrWhiteSpace(user.MiddleName)
+            ? user.FirstName
+            : $"{user.FirstName} {user.MiddleName}";
+
+        var roleName = user.Role.ToString();
 
         var claims = new Claim[]
         {
             new(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
             new(ClaimTypes.NameIdentifier, user.Id.ToString()),
             new(JwtRegisteredClaimNames.Email, user.Email),
+            new(JwtRegisteredClaimNames.Name, displayName),
             new(JwtRegisteredClaimNames.UniqueName, user.Username),
-            new(ClaimTypes.Role, user.Role.ToString()),
+            new("role", roleName),
+            new(ClaimTypes.Role, roleName),
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };
 
