@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
   {
@@ -26,6 +27,7 @@ export const routes: Routes = [
   {
     path: 'adventurers',
     title: 'Adventurers Roster — ORION 16-Bit Realm',
+    canActivate: [authGuard],
     loadComponent: () =>
       import('./views/adventurers/adventurers.component').then((m) => m.AdventurersComponent),
   },
